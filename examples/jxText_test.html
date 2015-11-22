@@ -1,0 +1,72 @@
+<html>
+<head>
+	<title>JX Text Test</title>
+	<script src="../build/three.js" ></script>
+	<script src="../src/JX.js" ></script>
+	<script src="../src/JXNode.js" ></script>
+	<script src="../src/JXText.js" ></script>
+	<script src="../src/JXCanvasRenderer.js" ></script>
+</head>
+<body>
+
+<canvas id="viewport" width="500" height="500"></canvas>
+<input type="text" id="changeArc" value="90">
+<script type="text/javascript">
+	var canvas = document.getElementById("viewport");
+
+	var change_arc = document.getElementById("changeArc");
+
+	var width = canvas.clientWidth, height = canvas.clientHeight;
+
+	var scene = new THREE.Scene();
+
+	var camera = new THREE.OrthographicCamera(-width/2, width/2, -height/2, height/2, 0.1, 1000);
+
+	var renderer = new THREE.JX.JXCanvasRenderer({canvas: canvas, alpha: true});
+
+	var text = new THREE.JX.JXText();
+	// text.content = "Hi ZhengWeiFu";
+	text.color.setRGB(0.5, 0, 0.5);
+	text.size = 5;
+	text.strokeColor.setRGB(1, 0.5, 0);
+	text.strokeSize = 2;
+	text.shadowColor.setRGB(0.3, 0.3, 0.3);
+	text.shadowDistance = 3;
+	text.shadowBlur = 2;
+	text.arc = Math.PI / 180 * parseInt(change_arc.value);
+	text.space = 4;
+	// text.position.set(40, 40, 0);
+	// text.scale.set(2, 2, 1);
+
+	var text2 = text.clone();
+	text2.rotation.z = Math.PI/8;
+	text2.position.set(40, 40, 0);
+	// text2.scale.set(2, 5, 1);
+	console.log(text2);
+
+	scene.add(text);
+	// scene.add(text2);
+
+	var render = function() {
+		scene.updateMatrixWorld(true);
+
+		renderer.render(scene, camera);
+	};
+
+	var renderLoop = function() {
+		requestAnimationFrame(renderLoop);
+		render();
+	};
+
+	renderLoop();
+
+	change_arc.onchange = function(event) {
+		text.arc = Math.PI/180 * parseInt(event.target.value);
+		renderer.needUpdate = true;
+	}
+
+
+</script>
+
+</body>
+</html>

@@ -25,9 +25,9 @@
 	var renderer = new THREE.JX.JXCanvasRenderer({canvas: canvas, alpha: true});
 
 	var text = new THREE.JX.JXText();
-	// text.content = "Hi ZhengWeiFu";
+	text.content = "Hi ZhengWeiFu Hi ZhengWeiFu Hi ZhengWeiFu";
 	text.color.setRGB(0.5, 0, 0.5);
-	text.size = 5;
+	text.size = 15;
 	text.strokeColor.setRGB(1, 0.5, 0);
 	text.strokeSize = 2;
 	text.shadowColor.setRGB(0.3, 0.3, 0.3);
@@ -37,6 +37,7 @@
 	text.space = 4;
 	// text.position.set(40, 40, 0);
 	// text.scale.set(2, 2, 1);
+	console.log(text.updateSubTransform());
 
 	var text2 = text.clone();
 	text2.rotation.z = Math.PI/8;

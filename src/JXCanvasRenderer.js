@@ -51,7 +51,7 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 		_context.clearRect(_viewportX, _viewportY, _viewportWidth, _viewportHeight);
 	};
 
-	var setTransform = function(object, w, h) {
+	var setTransform = function(object) {
 
 		var a = object.matrixWorld.elements[0],
 			b = object.matrixWorld.elements[1],
@@ -59,11 +59,11 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 			d = object.matrixWorld.elements[5],
 
 			e = object.matrixWorld.elements[12] + _canvasWidthHalf 
-				- (w/2 * Math.cos(object.rotation.z) * object.scale.x
-				+ h/2 * Math.sin(object.rotation.z) * object.scale.y),
+				- (object.width/2 * Math.cos(object.rotation.z) * object.scale.x
+				+ object.height/2 * Math.sin(object.rotation.z) * object.scale.y),
 			f = _canvasHeightHalf - object.matrixWorld.elements[13]
-				- (w/2 * Math.sin(object.rotation.z) * object.scale.x 
-				- h/2 * Math.cos(object.rotation.z) * object.scale.y);
+				- (object.width/2 * Math.sin(object.rotation.z) * object.scale.x 
+				- object.height/2 * Math.cos(object.rotation.z) * object.scale.y);
 
 			// console.log(object.matrixWorld.elements, w, h, c, d);
 			// console.log(w/2 * a + h/2 * d);
@@ -75,28 +75,33 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 	var renderText = function(text) {
 		// console.log(text.matrixWorld.elements, text.position, text.rotation, text.scale);
 
-		var _h = text.size * 10;
+		// var _h = text.height;
+		text.updateSubTransform();
 
-		_context.font= _h + "px " + text.font;
+		_context.font= text.size + "pt " + text.font;
 
-		var _w = _context.measureText(text.content).width;
+		// var _w = _context.measureText(text.content).width;
 
-		var _l = _w + text.space * (text.content.length - 1);
+		// var _l = _w + text.space * (text.content.length - 1);
 
-		var _ew, _ea, _ta = 0, _tl = 0;
-		var _r = _l / text.arc;
-		setTransform(text, _l, _h/2);
-		_context.translate(_l/2 - _r * Math.sin(text.arc/2), _r * (1 - Math.cos(text.arc/2)));
+		// var _ew, _ea, _ta = 0, _tl = 0;
+		// var _r = _l / text.arc;
+		setTransform(text);
+		// _context.translate(_l/2 - _r * Math.sin(text.arc/2), _r * (1 - Math.cos(text.arc/2)));
 		_context.rotate(-text.arc/2);
-		for(var i=0; i<text.content.length; i++) {
-			_ew = _context.measureText(text.content[i]).width;
-			_ea = text.arc * _tl/_l;
+		// for(var i=0; i<text.content.length; i++) {
+		// 	_ew = _context.measureText(text.content[i]).width;
+		// 	_ea = text.arc * _tl/_l;
 
-			_context.translate(_r * Math.sin(_ea-_ta), _r * (1 - Math.cos(_ea-_ta)));
-			_context.rotate(_ea-_ta);
+		// 	_context.translate(_r * Math.sin(_ea-_ta), _r * (1 - Math.cos(_ea-_ta)));
+		// 	_context.rotate(_ea-_ta);
 
-			_ta = _ea;
-			_tl += _ew + text.space;
+		// 	_ta = _ea;
+		// 	_tl += _ew + text.space;
+		console.log(text.subTransforms);
+		for(var i=0; i<text.subTransforms.length; i++) {
+			_context.translate(text.subTransforms[i].position.x, text.subTransforms[i].position.y);
+			_context.rotate(text.subTransforms[i].rotate);
 
 			_context.shadowColor = text.shadowColor.getStyle();
 			_context.shadowOffsetX = text.shadowDistance * -Math.cos(text.shadowAngle * Math.PI / 180);
@@ -107,12 +112,12 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 			setStrokeStyle(text.strokeColor.getStyle());
 			setLineCap(text.strokeCap);
 			setLineJoin(text.strokeJoin);
-			_context.strokeText(text.content[i], 0, 0);
+			_context.strokeText(text.subTransforms[i].content, 0, 0);
 
 			_context.shadowOffsetX = 0;  
             _context.shadowOffsetY = 0;  
 			setFillStyle(text.color.getStyle());
-			_context.fillText(text.content[i], 0, 0);
+			_context.fillText(text.subTransforms[i].content, 0, 0);
 		}
 
 	}

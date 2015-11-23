@@ -5,6 +5,9 @@ THREE.JX.JXNode = function() {
 
 	this.boundingBox = new THREE.Box2();
 
+	this.width = 0;
+
+	this.height = 0;
 };
 
 THREE.JX.JXNode.prototype = Object.create(THREE.Object3D.prototype);
@@ -21,6 +24,10 @@ THREE.JX.JXNode.prototype.copy = function(source, recursive) {
 	THREE.Object3D.prototype.copy.call( this, source, recursive );
 
 	this.boundingBox.copy(source.boundingBox);
+
+	this.width = source.width;
+
+	this.height = source.height;
 
 	return this;
 };

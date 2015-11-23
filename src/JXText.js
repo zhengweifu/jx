@@ -26,6 +26,7 @@ THREE.JX.JXText = function() {
 	// arc
 	this.arc = 0;
 
+	this.subTransforms = [];
 };
 
 THREE.JX.JXText.prototype = Object.create(THREE.JX.JXNode.prototype);
@@ -60,4 +61,36 @@ THREE.JX.JXText.prototype.copy = function(source, recursive) {
 	this.arc = source.arc;
 
 	return this;
+};
+
+THREE.JX.JXText.prototype.updateSubTransform = function() {
+	this.subTransforms.length = 0;
+
+	var options = {
+		font : this.font,
+		fontSize : this.size + 'pt'
+	};
+	var tb = THREE.JX.getTextSize(this.content, options);
+
+	var l = tb.w + this.space * (this.content.length - 1);
+	var r = l / this.arc, etw, ea, ta=0, tl=0;
+
+	this.width = 2 * r * Math.sin(this.arc/2);
+	this.height = tb.h;
+
+	for(var i=0; i<this.content.length; i++) {
+		etw = THREE.JX.getTextSize(this.content[i], options).w; 
+		ea = this.arc * tl/l;
+
+		this.subTransforms.push({
+			content: this.content[i],
+			position: {x: r * Math.sin(ea-ta), y: r * (1 - Math.cos(ea-ta))},
+			rotate: ea-ta
+		});
+
+		ta = ea;
+		tl += etw + this.space;
+	}
+
+	return this.subTransforms;
 };

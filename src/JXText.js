@@ -77,10 +77,12 @@ THREE.JX.JXText.prototype.updateSubTransform = function() {
 
 	if(this.arc >= Math.PI) {
 		this.width = 2 * (r + tb.h);
+		this.height = (r + tb.h) * (1 - Math.cos(this.arc/2));
 	} else {
 		this.width = 2 * (r + tb.h) * Math.sin(this.arc/2);
+		this.height = r * (1 - Math.cos(this.arc/2)) + tb.h;
 	}
-	this.height = (r + tb.h) * (1 - Math.cos(this.arc/2));
+	
 
 	for(var i=0; i<this.content.length; i++) {
 		etw = THREE.JX.getTextSize(this.content[i], options).w; 

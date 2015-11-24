@@ -82,6 +82,15 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 
 		setTransform(text);
 
+		var heplerOffset = 20;
+		var helperWidth = text.width + heplerOffset,
+			helperHeight = text.height + heplerOffset;
+
+		_context.rect(-helperWidth/2, -(THREE.JX.getTextSize(text.content, {
+			font : text.font,
+			fontSize : text.size + 'pt'
+		}).h + heplerOffset + 10)/2, helperWidth, helperHeight);
+		_context.stroke();
 		for(var i=0; i<text.subTransforms.length; i++) {
 			_context.translate(text.subTransforms[i].position.x, text.subTransforms[i].position.y);
 			_context.rotate(text.subTransforms[i].rotate);
@@ -102,6 +111,7 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 			setFillStyle(text.color.getStyle());
 			_context.fillText(text.subTransforms[i].content, 0, 0);
 		}
+
 
 	};
 

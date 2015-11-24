@@ -10,12 +10,17 @@
 <body>
 
 <canvas id="viewport" width="500" height="500"></canvas>
+<input type="text" id="changeContent" value="jia xiang mei li de dong aij">
 <input type="text" id="changeArc" value="15">
 <!-- <div>My     name is ZhengWeiFu  </div> -->
 <script type="text/javascript">
+
+(function() {
 	var canvas = document.getElementById("viewport");
 
 	var change_arc = document.getElementById("changeArc");
+
+	var change_content = document.getElementById("changeContent");
 
 	var width = canvas.clientWidth, height = canvas.clientHeight;
 
@@ -26,7 +31,7 @@
 	var renderer = new THREE.JX.JXCanvasRenderer({canvas: canvas, alpha: true});
 
 	var text = new THREE.JX.JXText();
-	text.content = "jia xiang mei lgegegegegxddi de dong aij";
+	text.content = change_content.value;
 	text.color.setRGB(0.5, 0, 0.5);
 	text.size = 15;
 	text.strokeColor.setRGB(1, 0.5, 0);
@@ -36,8 +41,9 @@
 	text.shadowBlur = 2;
 	text.arc = Math.PI / 180 * parseInt(change_arc.value);
 	text.space = 4;
-	// text.position.set(40, 40, 0);
-	// text.scale.set(2, 2, 1);
+	text.position.set(40, 40, 0);
+	// text.scale.set(1, 2, 1);
+	text.rotation.z = Math.PI/4;
 	console.log(text.updateSubTransform());
 
 	var text2 = text.clone();
@@ -65,8 +71,13 @@
 	change_arc.onchange = function(event) {
 		text.arc = Math.PI/180 * parseInt(event.target.value);
 		renderer.needUpdate = true;
-	}
+	};
 
+	change_content.onchange = function(event) {
+		text.content = event.target.value;
+		renderer.needUpdate = true;
+	};
+})()
 
 </script>
 

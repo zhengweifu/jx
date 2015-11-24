@@ -5,7 +5,7 @@ THREE.JX = {
 THREE.JX.getTextSize = function(text, options) {
 	options = options || {};
     options.font = options.font || 'Times';
-    options.fontSize = options.fontSize || '16px';
+    options.fontSize = options.fontSize || '16pt';
     options.fontWeight = options.fontWeight || 'normal';
 
 	var result = {w: 0, h: 0};
@@ -30,6 +30,16 @@ THREE.JX.getTextSize = function(text, options) {
 
 	result.w = _div.offsetWidth;
 	result.h = _div.offsetHeight;
+
+	if(!THREE.JX.JX_CANVAS_CONTEXT) {
+		var _canvas = document.createElement('canvas');
+		THREE.JX.JX_CANVAS_CONTEXT = _canvas.getContext('2d');
+	}
+
+	if(THREE.JX.JX_CANVAS_CONTEXT) {
+		THREE.JX.JX_CANVAS_CONTEXT.font = options.fontSize + " " + options.font + " " + options.fontWeight;
+		result.w = THREE.JX.JX_CANVAS_CONTEXT.measureText(text).width;
+	}
 
 	return result;
 };

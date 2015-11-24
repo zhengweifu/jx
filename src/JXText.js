@@ -75,12 +75,16 @@ THREE.JX.JXText.prototype.updateSubTransform = function() {
 	var l = tb.w + this.space * (this.content.length - 1);
 	var r = l / this.arc, etw, ea, ta=0, tl=0;
 
-	this.width = 2 * r * Math.sin(this.arc/2);
-	this.height = tb.h;
+	if(this.arc >= Math.PI) {
+		this.width = 2 * (r + tb.h);
+	} else {
+		this.width = 2 * (r + tb.h) * Math.sin(this.arc/2);
+	}
+	this.height = (r + tb.h) * (1 - Math.cos(this.arc/2));
 
 	for(var i=0; i<this.content.length; i++) {
 		etw = THREE.JX.getTextSize(this.content[i], options).w; 
-		ea = this.arc * tl/l;
+		ea = this.arc * (tl/l - 0.5);
 
 		this.subTransforms.push({
 			content: this.content[i],

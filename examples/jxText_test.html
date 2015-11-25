@@ -1,21 +1,33 @@
 <html>
 <head>
 	<title>JX Text Test</title>
+	<link rel="stylesheet" href="./jquery.nstSlider.min.css">
 	<script src="../build/three.js" ></script>
 	<script src="../src/JX.js" ></script>
 	<script src="../src/JXNode.js" ></script>
 	<script src="../src/JXText.js" ></script>
 	<script src="../src/JXCanvasRenderer.js" ></script>
+	<script src="./jquery-1.11.2.min.js"></script>
+	<script src="./jquery.arctext.js"></script>
+	<script src="./jquery.nstSlider.min.js"></script>
 </head>
 <body>
 
 <canvas id="viewport" width="500" height="500"></canvas>
-<input type="text" id="changeContent" value="jia xiang mei li de dong aij">
-<input type="text" id="changeArc" value="15">
+<input type="text" id="changeContent" value="jia xiang mei aij">
+<input type="text" id="changeArc" value="90">
+<div class="nstSlider" data-range_min="-360" data-range_max="360" data-cur_min="0">
+    <div class="leftGrip"></div>
+</div>
+<div class="leftLabel" />
 <!-- <div>My     name is ZhengWeiFu  </div> -->
+<span id="ex_test_01">the is all my test</span>
 <script type="text/javascript">
 
 (function() {
+
+	// $("#ex_test_01").arctext({radius: 10, dir: 1, fitText: true});
+
 	var canvas = document.getElementById("viewport");
 
 	var change_arc = document.getElementById("changeArc");
@@ -33,22 +45,22 @@
 	var text = new THREE.JX.JXText();
 	text.content = change_content.value;
 	text.color.setRGB(0.5, 0, 0.5);
-	text.size = 15;
+	text.size = 10;
 	text.strokeColor.setRGB(1, 0.5, 0);
 	text.strokeSize = 2;
 	text.shadowColor.setRGB(0.3, 0.3, 0.3);
 	text.shadowDistance = 3;
 	text.shadowBlur = 2;
 	text.arc = Math.PI / 180 * parseInt(change_arc.value);
-	text.space = 4;
-	text.position.set(40, 40, 0);
-	// text.scale.set(1, 2, 1);
-	text.rotation.z = Math.PI/4;
-	console.log(text.updateSubTransform());
+	text.space = 10;
+	// text.position.set(40, 40, 0);
+	// text.scale.set(2, 2, 1);
+	// text.rotation.z = Math.PI/4;
+	// console.log(text.updateSubTransform());
 
 	var text2 = text.clone();
-	text2.rotation.z = Math.PI/8;
-	text2.position.set(40, 40, 0);
+	// text2.rotation.z = Math.PI/8;
+	// text2.position.set(40, 40, 0);
 	// text2.scale.set(2, 5, 1);
 	console.log(text2);
 
@@ -77,6 +89,15 @@
 		text.content = event.target.value;
 		renderer.needUpdate = true;
 	};
+
+	$('.nstSlider').nstSlider({
+	    "left_grip_selector": ".leftGrip",
+	    "value_changed_callback": function(cause, leftValue, rightValue) {
+	        $(this).parent().find('.leftLabel').text(leftValue);
+	        text.arc = Math.PI/180 * parseInt(leftValue);
+			renderer.needUpdate = true;
+	    }
+	});
 })()
 
 </script>

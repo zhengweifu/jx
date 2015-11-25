@@ -33,9 +33,11 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 		_contextLineJoin = null,
 		_contextLineDash = [];
 
+	var self = this;
+
 	this.needUpdate = true;
 
-	this.clear = function() {
+	this.init = function() {
 		_clearColor = new THREE.Color( 0x000000 ),
 		_clearAlpha = parameters.alpha === true ? 0 : 1,
 
@@ -47,14 +49,18 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 		_contextLineCap = null,
 		_contextLineJoin = null,
 		_contextLineDash = [];
-		
+	};
+
+	this.clear = function() {
+		this.init();
 		_context.clearRect(_viewportX, _viewportY, _viewportWidth, _viewportHeight);
 	};
 
-	var setTransform = function(object, w, h) {
+	var setTransform = function(object, isScale, w, h) {
 		w = w || 0;
 		h = h || 0;
 
+		isScale = !!isScale
 		var a = object.matrixWorld.elements[0],
 			b = object.matrixWorld.elements[1],
 			c = object.matrixWorld.elements[4],
@@ -67,9 +73,11 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 				- (w/2 * Math.sin(object.rotation.z) * object.scale.x 
 				- h/2 * Math.cos(object.rotation.z) * object.scale.y);
 
-			// console.log(object.matrixWorld.elements, w, h, c, d);
-			// console.log(w/2 * a + h/2 * d);
 
+		if(!isScale) {
+			a = 1;
+			d = 1;
+		}
 		_context.setTransform(a, b, c, d, e, f);
 	};
 
@@ -81,19 +89,28 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 		_context.font= text.size + "pt " + text.font;
 
 		setTransform(text);
-
 		var heplerOffset = 20;
-		var helperWidth = text.width + heplerOffset,
-			helperHeight = text.height + heplerOffset;
-
-		_context.rect(-helperWidth/2, -(THREE.JX.getTextSize(text.content, {
-			font : text.font,
-			fontSize : text.size + 'pt'
-		}).h + heplerOffset + 10)/2, helperWidth, helperHeight);
+		var heplerPosition_x = text.boundingBox.min.x - heplerOffset/2,
+			heplerPosition_y = -text.boundingBox.max.y - heplerOffset/2,
+			helperWidth = text.boundingBox.max.x * 2  + heplerOffset,
+			helperHeight = (text.boundingBox.max.y - text.boundingBox.min.y) + heplerOffset;
+		
+		var small_size = 20;
+		_context.rect(heplerPosition_x-small_size, heplerPosition_y-small_size, small_size, small_size);
+		_context.rect(heplerPosition_x+helperWidth, heplerPosition_y-small_size, small_size, small_size);
+		_context.rect(heplerPosition_x-small_size, heplerPosition_y+helperHeight, small_size, small_size);
+		_context.rect(heplerPosition_x+helperWidth, heplerPosition_y+helperHeight, small_size, small_size);
+		_context.rect(heplerPosition_x, heplerPosition_y, helperWidth, helperHeight);
 		_context.stroke();
+		// console.log(text.boundingBox.min.y, text.boundingBox.max.y);
+		setTransform(text, true);
+		
 		for(var i=0; i<text.subTransforms.length; i++) {
+			_context.save();
 			_context.translate(text.subTransforms[i].position.x, text.subTransforms[i].position.y);
+			// console.log(text.subTransforms[i].rotate);
 			_context.rotate(text.subTransforms[i].rotate);
+			// _context.scale(text.scale.x, text.scale.y);
 
 			_context.shadowColor = text.shadowColor.getStyle();
 			_context.shadowOffsetX = text.shadowDistance * -Math.cos(text.shadowAngle * Math.PI / 180);
@@ -110,7 +127,10 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
             _context.shadowOffsetY = 0;  
 			setFillStyle(text.color.getStyle());
 			_context.fillText(text.subTransforms[i].content, 0, 0);
+			_context.restore();
+			self.init();
 		}
+
 
 
 	};

@@ -71,31 +71,63 @@ THREE.JX.JXText.prototype.updateSubTransform = function() {
 		fontSize : this.size + 'pt'
 	};
 	var tb = THREE.JX.getTextSize(this.content, options);
+	var h = tb.h;
 
 	var l = tb.w + this.space * (this.content.length - 1);
-	var r = l / this.arc, etw, ea, ta=0, tl=0;
+	// l *= this.scale.x;
+	var r = l/2;
+	if(this.arc != 0) r = l / this.arc;
+	var etw, ea, ta=0, tl=0;
 
-	if(this.arc >= Math.PI) {
-		this.width = 2 * (r + tb.h);
-		this.height = (r + tb.h) * (1 - Math.cos(this.arc/2));
+	if(this.arc == 0) {
+		this.width = l;
+		this.height = h;
 	} else {
-		this.width = 2 * (r + tb.h) * Math.sin(this.arc/2);
-		this.height = r * (1 - Math.cos(this.arc/2)) + tb.h;
+		var _a = Math.abs(this.arc), _r = Math.abs(r), _h = Math.abs(h);
+		if(_a >= Math.PI) {
+			this.width = 2 * (_r + _h);
+			this.height = (_r + _h) * (1 - Math.cos(_a/2));
+		} else {
+			this.width = 2 * (_r + _h) * Math.sin(_a/2);
+			this.height = _r * (1 - Math.cos(_a/2)) + _h;
+		}
 	}
-	
 
+	// set boundingBox
+	var b_x = this.width * this.scale.x/2;
+	if(this.arc > 0) {
+		this.boundingBox.min.set(-b_x, h * this.scale.y * 3/4 - this.height * this.scale.y);
+		this.boundingBox.max.set(b_x, h * this.scale.y * 3/4);
+	} else {
+		this.boundingBox.min.set(-b_x, -h * this.scale.y * 1/4);
+		this.boundingBox.max.set(b_x, this.height * this.scale.y - h * this.scale.y * 1/4);
+	}
+
+	var pos_x, pos_y, rot;
 	for(var i=0; i<this.content.length; i++) {
+
 		etw = THREE.JX.getTextSize(this.content[i], options).w; 
 		ea = this.arc * (tl/l - 0.5);
 
-		this.subTransforms.push({
-			content: this.content[i],
-			position: {x: r * Math.sin(ea-ta), y: r * (1 - Math.cos(ea-ta))},
-			rotate: ea-ta
-		});
-
+		if(this.arc != 0) {
+			pos_x = r * Math.sin(ea);
+			pos_y = r * (1 - Math.cos(ea));
+			rot = ea;
+		} else {
+			pos_x = tl - l/2;
+			pos_y = 0;
+			rot = 0;
+		}
+		
+		// console.log(this.subTransforms[i].content, this.subTransforms[i].position);
 		ta = ea;
 		tl += etw + this.space;
+
+		this.subTransforms.push({
+			content: this.content[i],
+			position: {x: pos_x, y: pos_y},
+			rotate: rot
+		});
 	}
 
 	return this.subTransforms;

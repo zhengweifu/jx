@@ -16,7 +16,13 @@
 <canvas id="viewport" width="500" height="500"></canvas>
 <input type="text" id="changeContent" value="jia xiang mei aij">
 <input type="text" id="changeArc" value="90">
-<div class="nstSlider" data-range_min="-360" data-range_max="360" data-cur_min="0">
+<div class="nstSlider" data-range_min="-360" data-range_max="360" data-cur_min="0" typename="text_arc">
+    <div class="leftGrip"></div>
+</div>
+<div class="nstSlider" data-range_min="2" data-range_max="60" data-cur_min="10" typename="text_size">
+    <div class="leftGrip"></div>
+</div>
+<div class="nstSlider" data-range_min="0" data-range_max="20" data-cur_min="5"  typename="text_space">
     <div class="leftGrip"></div>
 </div>
 <div class="leftLabel" />
@@ -45,14 +51,14 @@
 	var text = new THREE.JX.JXText();
 	text.content = change_content.value;
 	text.color.setRGB(0.5, 0, 0.5);
-	text.size = 10;
+	text.size = 20;
 	text.strokeColor.setRGB(1, 0.5, 0);
 	text.strokeSize = 2;
 	text.shadowColor.setRGB(0.3, 0.3, 0.3);
 	text.shadowDistance = 3;
 	text.shadowBlur = 2;
 	text.arc = Math.PI / 180 * parseInt(change_arc.value);
-	text.space = 10;
+	text.space = 5;
 	// text.position.set(40, 40, 0);
 	// text.scale.set(2, 2, 1);
 	// text.rotation.z = Math.PI/4;
@@ -94,7 +100,18 @@
 	    "left_grip_selector": ".leftGrip",
 	    "value_changed_callback": function(cause, leftValue, rightValue) {
 	        $(this).parent().find('.leftLabel').text(leftValue);
-	        text.arc = Math.PI/180 * parseInt(leftValue);
+	        var type_name = $(this).attr("typename");
+	        switch (type_name) {
+	        	case "text_arc":
+	        		text.arc = Math.PI/180 * parseInt(leftValue);
+	        		break;
+	        	case "text_size":
+	        		text.size = parseInt(leftValue);
+	        		break;
+	        	case "text_space":
+	        		text.space = parseInt(leftValue);
+	        		break;
+	        }
 			renderer.needUpdate = true;
 	    }
 	});

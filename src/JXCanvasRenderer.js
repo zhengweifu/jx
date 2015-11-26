@@ -104,7 +104,7 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 		_context.stroke();
 		// console.log(text.boundingBox.min.y, text.boundingBox.max.y);
 		setTransform(text, true);
-		
+		_context.textBaseline="middle";
 		for(var i=0; i<text.subTransforms.length; i++) {
 			_context.save();
 			_context.translate(text.subTransforms[i].position.x, text.subTransforms[i].position.y);
@@ -130,8 +130,6 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 			_context.restore();
 			self.init();
 		}
-
-
 
 	};
 

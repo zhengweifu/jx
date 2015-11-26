@@ -74,42 +74,46 @@ THREE.JX.JXText.prototype.updateSubTransform = function() {
 	var h = tb.h;
 
 	var l = tb.w + this.space * (this.content.length - 1);
+
+	var a = this.arc, ta = (l / (l + this.space)) * 2 * Math.PI;
+	if(a > ta) a = ta;
+
 	// l *= this.scale.x;
 	var r = l/2;
-	if(this.arc != 0) r = l / this.arc;
+	if(a != 0) r = l / a;
 	var etw, ea, ta=0, tl=0;
 
-	if(this.arc == 0) {
+	if(a == 0) {
 		this.width = l;
 		this.height = h;
 	} else {
-		var _a = Math.abs(this.arc), _r = Math.abs(r), _h = Math.abs(h);
+		var _a = Math.abs(a), _r = Math.abs(r), _h = Math.abs(h);
 		if(_a >= Math.PI) {
-			this.width = 2 * (_r + _h);
-			this.height = (_r + _h) * (1 - Math.cos(_a/2));
+			this.width = 2 * _r + _h;
+			this.height = (_r + _h/2) * (1 - Math.cos(_a/2));
 		} else {
-			this.width = 2 * (_r + _h) * Math.sin(_a/2);
-			this.height = _r * (1 - Math.cos(_a/2)) + _h;
+			this.width = 2 * (_r + _h/2) * Math.sin(_a/2);
+			this.height = (_r + _h/2) -((_r - _h/2) * Math.cos(_a/2));
 		}
 	}
 
 	// set boundingBox
 	var b_x = this.width * this.scale.x/2;
-	if(this.arc > 0) {
-		this.boundingBox.min.set(-b_x, h * this.scale.y * 3/4 - this.height * this.scale.y);
-		this.boundingBox.max.set(b_x, h * this.scale.y * 3/4);
+	if(a > 0) {
+		this.boundingBox.min.set(-b_x, h * this.scale.y * 0.5 - this.height * this.scale.y);
+		this.boundingBox.max.set(b_x, h * this.scale.y * 0.5);
 	} else {
-		this.boundingBox.min.set(-b_x, -h * this.scale.y * 1/4);
-		this.boundingBox.max.set(b_x, this.height * this.scale.y - h * this.scale.y * 1/4);
+		this.boundingBox.min.set(-b_x, -h * this.scale.y * 0.5);
+		this.boundingBox.max.set(b_x, this.height * this.scale.y - h * this.scale.y * 0.5);
 	}
 
 	var pos_x, pos_y, rot;
 	for(var i=0; i<this.content.length; i++) {
 
 		etw = THREE.JX.getTextSize(this.content[i], options).w; 
-		ea = this.arc * (tl/l - 0.5);
+		ea = a * (tl/l - 0.5);
 
-		if(this.arc != 0) {
+		if(a != 0) {
 			pos_x = r * Math.sin(ea);
 			pos_y = r * (1 - Math.cos(ea));
 			rot = ea;

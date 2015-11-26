@@ -77,6 +77,7 @@ THREE.JX.JXText.prototype.updateSubTransform = function() {
 
 	var a = this.arc, ta = (l / (l + this.space)) * 2 * Math.PI;
 	if(a > ta) a = ta;
+	else if(a < -ta) a = -ta;
 
 	// l *= this.scale.x;
 	var r = l/2;

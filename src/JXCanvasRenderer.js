@@ -73,6 +73,10 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 			m4 = object.matrixWorld.clone();
 		}
 
+		// reversed canvas rotate
+		m4.elements[1] = -m4.elements[1];
+		m4.elements[4] = -m4.elements[4];
+
 		var a = m4.elements[0],
 			b = m4.elements[1],
 			c = m4.elements[4],

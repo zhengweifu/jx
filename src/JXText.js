@@ -99,14 +99,24 @@ THREE.JX.JXText.prototype.updateSubTransform = function() {
 	}
 
 	// set boundingBox
-	var b_x = this.width * this.scale.x/2;
-	if(a > 0) {
-		this.boundingBox.min.set(-b_x, h * this.scale.y * 0.5 - this.height * this.scale.y);
-		this.boundingBox.max.set(b_x, h * this.scale.y * 0.5);
+	// var b_x = this.width * this.scale.x/2;
+	// if(a > 0) {
+	// 	this.boundingBox.min.set(-b_x, h * this.scale.y * 0.5 - this.height * this.scale.y);
+	// 	this.boundingBox.max.set(b_x, h * this.scale.y * 0.5);
+	// } else {
+	// 	this.boundingBox.min.set(-b_x, -h * this.scale.y * 0.5);
+	// 	this.boundingBox.max.set(b_x, this.height * this.scale.y - h * this.scale.y * 0.5);
+	// }
+
+	var b_x = this.width * 0.5;
+	if(a >= 0) {
+		this.boundingBox.min.set(-b_x, h * 0.5 - this.height);
+		this.boundingBox.max.set(b_x, h * 0.5);
 	} else {
-		this.boundingBox.min.set(-b_x, -h * this.scale.y * 0.5);
-		this.boundingBox.max.set(b_x, this.height * this.scale.y - h * this.scale.y * 0.5);
+		this.boundingBox.min.set(-b_x, -h * 0.5);
+		this.boundingBox.max.set(b_x, this.height - h * 0.5);
 	}
+	
 
 	var pos_x, pos_y, rot;
 	for(var i=0; i<this.content.length; i++) {

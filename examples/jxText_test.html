@@ -40,7 +40,7 @@
 
 	var change_content = document.getElementById("changeContent");
 
-	var width = canvas.clientWidth, height = canvas.clientHeight;
+	var width = canvas.clientWidth, height = canvas.clientHeight, halfWidth = width/2, halfHeight = height/2;
 
 	var scene = new THREE.Scene();
 
@@ -60,15 +60,15 @@
 	text.arc = Math.PI / 180 * parseInt(change_arc.value);
 	text.space = 5;
 	// text.position.set(40, 40, 0);
-	// text.scale.set(2, 2, 1);
-	// text.rotation.z = Math.PI/4;
+	text.scale.set(2, 2, 1);
+	text.rotation.z = Math.PI/4;
 	// console.log(text.updateSubTransform());
 
 	var text2 = text.clone();
 	// text2.rotation.z = Math.PI/8;
 	// text2.position.set(40, 40, 0);
 	// text2.scale.set(2, 5, 1);
-	console.log(text2);
+	// console.log(text2);
 
 	scene.add(text);
 	// scene.add(text2);
@@ -114,6 +114,20 @@
 	        }
 			renderer.needUpdate = true;
 	    }
+	});
+
+	var p = new THREE.Vector2();
+
+	// $("#viewport").on('mouseover', function(event) {
+		
+	// });
+	// 
+
+	$("#viewport").on('click', function(event) {
+		// console.log(text.boundingBox);
+		var mp = THREE.JX.getMousePosition(event.target, event.clientX, event.clientY);
+		p.set(mp[0] * width - halfWidth, halfHeight - mp[1] * height);
+		console.log(text.pointInJXNode(p));
 	});
 })()
 

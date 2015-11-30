@@ -2,6 +2,13 @@ THREE.JX = {
 	version : "1.0.0"
 };
 
+
+/**
+ * [getTextSize description]
+ * @param  {[type]} text    [description]
+ * @param  {[type]} options [description]
+ * @return {[type]}         [description]
+ */
 THREE.JX.getTextSize = function(text, options) {
 	options = options || {};
     options.font = options.font || 'Times';
@@ -42,4 +49,52 @@ THREE.JX.getTextSize = function(text, options) {
 	}
 
 	return result;
+};
+
+/**
+ * [pointInPolygon description]
+ * @param  {[type]} point  [THREE.Vector2]
+ * @param  {[type]} points [THREE.Vector2 array]
+ * @return {[type]}        [bool]
+ */
+THREE.JX.pointInPolygon = function(point, points) {
+	var i, p1, p2;
+	var nCross = 0, nCount = points.length;
+	for(i=0; i<nCount; i++) {
+		p1 = points[i];
+		p2 = points[(i+1)%nCount];
+		if(p1.y == p2.y) {
+			continue;
+		}
+
+		if(point.y < Math.min(p1.y, p2.y)) {
+			continue;
+		}
+
+		if(point.y >= Math.max(p1.y, p2.y)) {
+			continue;
+		}
+
+		var x = (point.y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) + p1.x;
+
+		if(x > point.x) nCross++;
+	}
+
+	return (nCross % 2 == 1);
+
+};
+
+THREE.JX.vector2ApplyMatrix4 = function(v2, m4) {
+	var e = m4.elements;
+	var x = v2.x, y = v2.y;
+
+	v2.x = e[ 0 ] * x + e[ 4 ] * y + e[ 12 ];
+	v2.y = e[ 1 ] * x + e[ 5 ] * y + e[ 13 ];
+
+	return v2;
+};
+
+THREE.JX.getMousePosition = function(dom, x, y) {
+	var rect = dom.getBoundingClientRect();
+	return [ ( x - rect.left ) / rect.width, ( y - rect.top ) / rect.height ];
 };

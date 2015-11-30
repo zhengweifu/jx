@@ -61,23 +61,30 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 		h = h || 0;
 
 		isScale = !!isScale
-		var a = object.matrixWorld.elements[0],
-			b = object.matrixWorld.elements[1],
-			c = object.matrixWorld.elements[4],
-			d = object.matrixWorld.elements[5],
 
-			e = object.matrixWorld.elements[12] + _canvasWidthHalf 
+		var m4;
+		if(!isScale) {
+			var _p = new THREE.Vector3(), _q = new THREE.Quaternion(), _s = new THREE.Vector3();
+			object.matrixWorld.decompose(_p, _q, _s);
+			_s.set(1, 1, 1);
+			m4 = new THREE.Matrix4();
+			m4.compose(_p, _q, _s);
+		} else {
+			m4 = object.matrixWorld.clone();
+		}
+
+		var a = m4.elements[0],
+			b = m4.elements[1],
+			c = m4.elements[4],
+			d = m4.elements[5],
+
+			e = m4.elements[12] + _canvasWidthHalf 
 				- (w/2 * Math.cos(object.rotation.z) * object.scale.x
 				+ h/2 * Math.sin(object.rotation.z) * object.scale.y),
-			f = _canvasHeightHalf - object.matrixWorld.elements[13]
+			f = _canvasHeightHalf - m4.elements[13]
 				- (w/2 * Math.sin(object.rotation.z) * object.scale.x 
 				- h/2 * Math.cos(object.rotation.z) * object.scale.y);
 
-
-		if(!isScale) {
-			a = 1;
-			d = 1;
-		}
 		_context.setTransform(a, b, c, d, e, f);
 	};
 
@@ -89,11 +96,11 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 		_context.font= text.size + "pt " + text.font;
 
 		setTransform(text);
-		var heplerOffset = 20;
-		var heplerPosition_x = text.boundingBox.min.x - heplerOffset/2,
-			heplerPosition_y = -text.boundingBox.max.y - heplerOffset/2,
-			helperWidth = text.boundingBox.max.x * 2  + heplerOffset,
-			helperHeight = (text.boundingBox.max.y - text.boundingBox.min.y) + heplerOffset;
+		var heplerOffset = 10;
+		var heplerPosition_x = text.boundingBox.min.x * text.scale.x - heplerOffset,
+			heplerPosition_y = -text.boundingBox.max.y * text.scale.y - heplerOffset,
+			helperWidth = text.boundingBox.max.x * 2 * text.scale.x + heplerOffset * 2,
+			helperHeight = (text.boundingBox.max.y - text.boundingBox.min.y) * text.scale.y + heplerOffset * 2;
 		
 		var small_size = 20;
 		_context.rect(heplerPosition_x-small_size, heplerPosition_y-small_size, small_size, small_size);
@@ -117,7 +124,7 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 			_context.shadowOffsetY = text.shadowDistance * Math.sin(text.shadowAngle * Math.PI / 180);
 			_context.shadowBlur = text.shadowBlur;
 
-			setLineWidth(text.strokeSize * 2); 
+			setLineWidth(text.strokeSize); 
 			setStrokeStyle(text.strokeColor.getStyle());
 			setLineCap(text.strokeCap);
 			setLineJoin(text.strokeJoin);

@@ -25,6 +25,10 @@
 <div class="nstSlider" data-range_min="0" data-range_max="20" data-cur_min="5"  typename="text_space">
     <div class="leftGrip"></div>
 </div>
+
+<div class="nstSlider" data-range_min="-360" data-range_max="360" data-cur_min="0"  typename="object_rotate">
+    <div class="leftGrip"></div>
+</div>
 <div class="leftLabel" />
 <!-- <div>My     name is ZhengWeiFu  </div> -->
 <span id="ex_test_01">the is all my test</span>
@@ -60,8 +64,8 @@
 	text.arc = Math.PI / 180 * parseInt(change_arc.value);
 	text.space = 5;
 	// text.position.set(40, 40, 0);
-	text.scale.set(2, 2, 1);
-	text.rotation.z = Math.PI/4;
+	// text.scale.set(2, 2, 1);
+	// text.rotation.z = Math.PI/4;
 	// console.log(text.updateSubTransform());
 
 	var text2 = text.clone();
@@ -111,6 +115,10 @@
 	        	case "text_space":
 	        		text.space = parseInt(leftValue);
 	        		break;
+
+	        	case "object_rotate":
+	        		text.rotation.z = parseInt(leftValue) * Math.PI / 180;
+	        		break;
 	        }
 			renderer.needUpdate = true;
 	    }
@@ -118,17 +126,40 @@
 
 	var p = new THREE.Vector2();
 
-	// $("#viewport").on('mouseover', function(event) {
-		
-	// });
-	// 
+	var pointerOld = new THREE.Vector2(), pointer = new THREE.Vector2();
+	var onMouseDown = function(event) {
+		pointerOld.set(event.clientX, event.clientY);
+	};
 
-	$("#viewport").on('click', function(event) {
+	var onMouseMove = function(event) {
+		pointer.set(event.clientX, event.clientY);
+		var moveX = pointer.x - pointerOld.x;
+		var moveY = pointer.y - pointerOld.y;
+		var _scale = 1;
+		text.position.x += moveX * _scale;
+		text.position.y -= moveY * _scale;
+
+		pointerOld.copy(pointer);
+
+		renderer.needUpdate = true;
+	};
+
+	var onMouseUp = function(event) {
+		canvas.removeEventListener( 'mousemove', onMouseMove, false );
+		canvas.removeEventListener( 'mouseup', onMouseUp, false );
+		canvas.removeEventListener( 'mouseout', onMouseUp, false );
+		canvas.removeEventListener( 'dblclick', onMouseUp, false );
+	};
+
+	canvas.addEventListener('mousedown', function(event) {
+		onMouseDown(event);
+		canvas.addEventListener('mousemove', onMouseMove, false);
+		canvas.addEventListener('mouseup', onMouseUp, false);
 		// console.log(text.boundingBox);
-		var mp = THREE.JX.getMousePosition(event.target, event.clientX, event.clientY);
-		p.set(mp[0] * width - halfWidth, halfHeight - mp[1] * height);
-		console.log(text.pointInJXNode(p));
-	});
+		// var mp = THREE.JX.getMousePosition(event.target, event.clientX, event.clientY);
+		// p.set(mp[0] * width - halfWidth, halfHeight - mp[1] * height);
+		// console.log(text.pointInJXNode(p));
+	}, false);
 })()
 
 </script>

@@ -31,7 +31,7 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 		_contextLineCap = null,
 		_contextLineJoin = null,
 		_contextLineDash = [];
-console.log(_context);
+
 	var self = this;
 
 	this.needUpdate = true;
@@ -156,8 +156,35 @@ console.log(_context);
 		setTransform(sprite, true);
 		_context.translate(-sprite.width/2, -sprite.height/2);
 
+
+
 		if(sprite.image) {
-			_context.drawImage(sprite.image, 0, 0, sprite.width, sprite.height);
+			var sprite_width = sprite.width * sprite.scale.x;
+			if(sprite.image.width > sprite_width) {
+				// 图片抗锯齿处理
+				var oc = document.createElement('canvas'),
+					octx = oc.getContext('2d');
+				var steps = Math.ceil(Math.log(sprite.image.width / sprite_width ) / Math.log(2));
+				console.log(steps);
+				oc.width = sprite.image.width * 0.5;
+				oc.height =  sprite.image.height * 0.5;
+
+				octx.drawImage(sprite.image, 0, 0, oc.width , oc.height);
+
+				var _pow, _w, _h, d_w = oc.width, d_h = oc.height;
+				for(var s=1; s<steps; s++) {
+					_pow = Math.pow(2, s);
+					_w = sprite.image.width / _pow;
+					_h = sprite.image.height / _pow;
+					octx.drawImage(oc, 0, 0, d_w , d_h, 0, 0, _w, _h);
+					d_w = _w;
+					d_h = _h;
+				}
+
+				_context.drawImage(oc, 0, 0, d_w, d_h, 0, 0, sprite.width, sprite.height);
+			} else {
+				_context.drawImage(oc, 0, 0, sprite.width, sprite.height);
+			}
 		}
 		
 		if(sprite.drawHepler) {
@@ -187,11 +214,11 @@ console.log(_context);
 			// create grid
 			_context.beginPath();
 			setStrokeStyle("#669911");
-			_context.moveTo(0, _canvasHeightHalf);
-			_context.lineTo(_canvasWidth, _canvasHeightHalf);
-			_context.moveTo(_canvasWidthHalf, 0);
-			_context.lineTo(_canvasWidthHalf, _canvasHeight);
-			_context.stroke();
+			// _context.moveTo(0, _canvasHeightHalf);
+			// _context.lineTo(_canvasWidth, _canvasHeightHalf);
+			// _context.moveTo(_canvasWidthHalf, 0);
+			// _context.lineTo(_canvasWidthHalf, _canvasHeight);
+			// _context.stroke();
 			renderObject(scene);
 
 			_context.restore();

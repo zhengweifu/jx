@@ -22,8 +22,8 @@ THREE.JX.JXSprite = function(image, color, strokeColor, strokeCap, strokeJoin, s
 	this.shadowAngle = shadowAngle !== undefined ? shadowAngle : 100;
 	this.shadowBlur = shadowBlur !== undefined ? shadowBlur : 0;
 
-	this.width = 100;
-	this.height = 100;
+	this.width = 200;
+	this.height = 200;
 };
 
 THREE.JX.JXSprite.prototype = Object.create(THREE.JX.JXNode.prototype);

@@ -15,8 +15,8 @@ THREE.JX.JXSpriteLoader.prototype = {
 		var loader = new THREE.ImageLoader( this.manager );
 		loader.setCrossOrigin( this.crossOrigin );
 		loader.load( url, function ( image ) {
-			image.width = sprite.width;
-			image.height = sprite.height;
+
+			sprite.height *= (image.height / image.width);
 
 			sprite.image = image;
 

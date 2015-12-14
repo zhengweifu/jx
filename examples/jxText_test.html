@@ -32,7 +32,7 @@
     <div class="leftGrip"></div>
 </div>
 
-<div class="nstSlider" data-range_min="0" data-range_max="1000" data-cur_min="0"  typename="object_scale">
+<div class="nstSlider" data-range_min="1" data-range_max="1000" data-cur_min="100"  typename="object_scale">
     <div class="leftGrip"></div>
 </div>
 
@@ -101,8 +101,12 @@
 
 	var setCurrent = function(object) {
 		if(current_object && current_object.drawHepler) current_object.drawHepler = false;
+
 		current_object = object;
-		if(!current_object.drawHepler) current_object.drawHepler = true;
+
+		if(current_object && !current_object.drawHepler) current_object.drawHepler = true;
+
+		renderer.needUpdate = true;
 	};
 
 	setCurrent(text);
@@ -187,20 +191,24 @@
 
 	canvas.addEventListener('mousedown', function(event) {
 		onMouseDown(event);
-		canvas.addEventListener('mousemove', onMouseMove, false);
-		canvas.addEventListener('mouseup', onMouseUp, false);
-		// console.log(text.boundingBox);
+
 		var mp = THREE.JX.getMousePosition(event.target, event.clientX, event.clientY);
 		p.set(mp[0] * width - halfWidth, halfHeight - mp[1] * height);
  
+ 		var isFind = false;
 		for(var x=0; x<scene.children.length; x++) {
 			if(scene.children[x].pointInJXNode(p)) {
-				if(current_object) current_object.drawHepler = false;
-				current_object = scene.children[x];
-				current_object.drawHepler = true;
-				renderer.needUpdate = true;
+				setCurrent(scene.children[x]);
+				isFind = true;
 				break;
 			}
+		}
+
+		if(!isFind) {
+			setCurrent();
+		} else {
+			canvas.addEventListener('mousemove', onMouseMove, false);
+			canvas.addEventListener('mouseup', onMouseUp, false);
 		}
 	}, false);
 })()

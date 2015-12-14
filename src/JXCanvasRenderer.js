@@ -20,7 +20,6 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 		_context = _canvas.getContext( '2d', {
 			alpha: parameters.alpha === true
 		} ),
-
 		_clearColor = new THREE.Color( 0x000000 ),
 		_clearAlpha = parameters.alpha === true ? 0 : 1,
 
@@ -32,7 +31,7 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 		_contextLineCap = null,
 		_contextLineJoin = null,
 		_contextLineDash = [];
-
+console.log(_context);
 	var self = this;
 
 	this.needUpdate = true;
@@ -88,8 +87,25 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 			f = _canvasHeightHalf - m4.elements[13]
 				- (w/2 * Math.sin(object.rotation.z) * object.scale.x 
 				- h/2 * Math.cos(object.rotation.z) * object.scale.y);
-
+		// console.log(a, b, c, d, e, f);
 		_context.setTransform(a, b, c, d, e, f);
+	};
+
+	var renderHepler = function(object, heplerOffset, smallSize) {
+		heplerOffset = heplerOffset || 10;
+
+		var heplerPosition_x = object.boundingBox.min.x * object.scale.x - heplerOffset,
+			heplerPosition_y = -object.boundingBox.max.y * object.scale.y - heplerOffset,
+			helperWidth = object.boundingBox.max.x * 2 * object.scale.x + heplerOffset * 2,
+			helperHeight = (object.boundingBox.max.y - object.boundingBox.min.y) * object.scale.y + heplerOffset * 2;
+
+		smallSize = smallSize || 20;
+		_context.rect(heplerPosition_x-smallSize, heplerPosition_y-smallSize, smallSize, smallSize);
+		_context.rect(heplerPosition_x+helperWidth, heplerPosition_y-smallSize, smallSize, smallSize);
+		_context.rect(heplerPosition_x-smallSize, heplerPosition_y+helperHeight, smallSize, smallSize);
+		_context.rect(heplerPosition_x+helperWidth, heplerPosition_y+helperHeight, smallSize, smallSize);
+		_context.rect(heplerPosition_x, heplerPosition_y, helperWidth, helperHeight);
+		_context.stroke();
 	};
 
 	// render JXText
@@ -99,20 +115,6 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 
 		_context.font= text.size + "pt " + text.font;
 
-		setTransform(text);
-		var heplerOffset = 10;
-		var heplerPosition_x = text.boundingBox.min.x * text.scale.x - heplerOffset,
-			heplerPosition_y = -text.boundingBox.max.y * text.scale.y - heplerOffset,
-			helperWidth = text.boundingBox.max.x * 2 * text.scale.x + heplerOffset * 2,
-			helperHeight = (text.boundingBox.max.y - text.boundingBox.min.y) * text.scale.y + heplerOffset * 2;
-		
-		var small_size = 20;
-		_context.rect(heplerPosition_x-small_size, heplerPosition_y-small_size, small_size, small_size);
-		_context.rect(heplerPosition_x+helperWidth, heplerPosition_y-small_size, small_size, small_size);
-		_context.rect(heplerPosition_x-small_size, heplerPosition_y+helperHeight, small_size, small_size);
-		_context.rect(heplerPosition_x+helperWidth, heplerPosition_y+helperHeight, small_size, small_size);
-		_context.rect(heplerPosition_x, heplerPosition_y, helperWidth, helperHeight);
-		_context.stroke();
 		// console.log(text.boundingBox.min.y, text.boundingBox.max.y);
 		setTransform(text, true);
 		_context.textBaseline="middle";
@@ -142,12 +144,34 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 			self.init();
 		}
 
+		if(text.drawHepler) {
+			setTransform(text, false);
+			renderHepler(text);
+		}
+	};
+
+	var renderSprite = function(sprite) {
+		sprite.computBoundingBox();
+
+		setTransform(sprite, true);
+		_context.translate(-sprite.width/2, -sprite.height/2);
+
+		if(sprite.image) {
+			_context.drawImage(sprite.image, 0, 0, sprite.width, sprite.height);
+		}
+		
+		if(sprite.drawHepler) {
+			setTransform(sprite, false);
+			renderHepler(sprite);
+		}
 	};
 
 	// render object recursive
 	var renderObject = function(object) {
 		if(object instanceof THREE.JX.JXText) {
 			renderText(object);
+		} else if(object instanceof THREE.JX.JXSprite) {
+			renderSprite(object);
 		}
 
 		for(var i=0; i<object.children.length; i++) {

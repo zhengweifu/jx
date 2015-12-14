@@ -6,6 +6,8 @@
 	<script src="../src/JX.js" ></script>
 	<script src="../src/JXNode.js" ></script>
 	<script src="../src/JXText.js" ></script>
+	<script src="../src/JXSprite.js" ></script>
+	<script src="../src/JXSpriteLoader.js" ></script>
 	<script src="../src/JXCanvasRenderer.js" ></script>
 	<script src="./jquery-1.11.2.min.js"></script>
 	<script src="./jquery.arctext.js"></script>
@@ -29,6 +31,11 @@
 <div class="nstSlider" data-range_min="-360" data-range_max="360" data-cur_min="0"  typename="object_rotate">
     <div class="leftGrip"></div>
 </div>
+
+<div class="nstSlider" data-range_min="0" data-range_max="1000" data-cur_min="0"  typename="object_scale">
+    <div class="leftGrip"></div>
+</div>
+
 <div class="leftLabel" />
 <!-- <div>My     name is ZhengWeiFu  </div> -->
 <span id="ex_test_01">the is all my test</span>
@@ -68,17 +75,40 @@
 	// text.rotation.z = Math.PI/4;
 	// console.log(text.updateSubTransform());
 
-	var text2 = text.clone();
+	// var text2 = text.clone();
 	// text2.rotation.z = Math.PI/8;
 	// text2.position.set(40, 40, 0);
 	// text2.scale.set(2, 5, 1);
 	// console.log(text2);
+	// 
+	
+	var sprite_loader = new THREE.JX.JXSpriteLoader();
+	var sprite = sprite_loader.load("sprite_test2.jpg", function(_sprite) {
+		console.log(_sprite); 
+		renderer.needUpdate = true;
+	});
+
+	// sprite.rotation.z = Math.PI/8;
+
+	// sprite.scale.set(2, 3, 1);
+
+	scene.add(sprite);
 
 	scene.add(text);
 	// scene.add(text2);
+	
+	var current_object;
+
+	var setCurrent = function(object) {
+		if(current_object && current_object.drawHepler) current_object.drawHepler = false;
+		current_object = object;
+		if(!current_object.drawHepler) current_object.drawHepler = true;
+	};
+
+	setCurrent(text);
 
 	var render = function() {
-		scene.updateMatrixWorld(true);
+		scene.updateMatrixWorld();
 
 		renderer.render(scene, camera);
 	};
@@ -115,9 +145,13 @@
 	        	case "text_space":
 	        		text.space = parseInt(leftValue);
 	        		break;
-
 	        	case "object_rotate":
-	        		text.rotation.z = parseInt(leftValue) * Math.PI / 180;
+	        		current_object.rotation.z = parseInt(leftValue) * Math.PI / 180;
+	        		break;
+	        	case "object_scale":
+	        		var s =  parseInt(leftValue) / 100;
+	        		current_object.scale.x = s;
+	        		current_object.scale.y = s;
 	        		break;
 	        }
 			renderer.needUpdate = true;
@@ -136,8 +170,8 @@
 		var moveX = pointer.x - pointerOld.x;
 		var moveY = pointer.y - pointerOld.y;
 		var _scale = 1;
-		text.position.x += moveX * _scale;
-		text.position.y -= moveY * _scale;
+		current_object.position.x += moveX * _scale;
+		current_object.position.y -= moveY * _scale;
 
 		pointerOld.copy(pointer);
 
@@ -156,9 +190,18 @@
 		canvas.addEventListener('mousemove', onMouseMove, false);
 		canvas.addEventListener('mouseup', onMouseUp, false);
 		// console.log(text.boundingBox);
-		// var mp = THREE.JX.getMousePosition(event.target, event.clientX, event.clientY);
-		// p.set(mp[0] * width - halfWidth, halfHeight - mp[1] * height);
-		// console.log(text.pointInJXNode(p));
+		var mp = THREE.JX.getMousePosition(event.target, event.clientX, event.clientY);
+		p.set(mp[0] * width - halfWidth, halfHeight - mp[1] * height);
+ 
+		for(var x=0; x<scene.children.length; x++) {
+			if(scene.children[x].pointInJXNode(p)) {
+				if(current_object) current_object.drawHepler = false;
+				current_object = scene.children[x];
+				current_object.drawHepler = true;
+				renderer.needUpdate = true;
+				break;
+			}
+		}
 	}, false);
 })()
 

@@ -8,6 +8,10 @@ THREE.JX.JXNode = function() {
 	this.width = 0;
 
 	this.height = 0;
+
+	this.drawHepler = false;
+
+	this.gizmoHepler = undefined;
 };
 
 THREE.JX.JXNode.prototype = Object.create(THREE.Object3D.prototype);

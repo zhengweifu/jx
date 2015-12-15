@@ -6,18 +6,21 @@ THREE.JX.JXText = function() {
 
 	// content
 	this.content = "www.jianxi.com";
+	this.useColor = true;
 	this.color = new THREE.Color();
 	this.size = 1.0;
 	this.space = 0.0;
 	this.font = "Arial";
 
 	// stroke
+	this.useStroke = false;
 	this.strokeColor = new THREE.Color(0x888888);
 	this.strokeCap = "round"; // butt, round, square
 	this.strokeJoin = "round"; // miter, round, 
 	this.strokeSize = 1;
 
 	// shadow
+	this.useShadow = false;
 	this.shadowColor = new THREE.Color(0x000000);
 	this.shadowDistance = 3.0;
 	this.shadowAngle = 100;
@@ -27,6 +30,8 @@ THREE.JX.JXText = function() {
 	this.arc = 0;
 
 	this.subTransforms = [];
+
+	this.needUpdate = true;
 };
 
 THREE.JX.JXText.prototype = Object.create(THREE.JX.JXNode.prototype);
@@ -43,16 +48,19 @@ THREE.JX.JXText.prototype.copy = function(source, recursive) {
 	THREE.JX.JXNode.prototype.copy.call( this, source, recursive );
 
 	this.content = source.content;
+	this.useColor = source.useColor;
 	this.color.copy(source.color);
 	this.size = source.size;
 	this.space = source.space;
 	this.font = source.font;
 
+	this.useStroke = source.useStroke;
 	this.strokeColor.copy(source.strokeColor);
 	this.strokeCap = source.strokeCap;
 	this.strokeJoin = source.strokeJoin;
 	this.strokeSize = source.strokeSize;
 
+	this.useShadow = source.useShadow;
 	this.shadowColor.copy(source.shadowColor);
 	this.shadowDistance = source.shadowDistance;
 	this.shadowAngle = source.shadowAngle;
@@ -108,15 +116,23 @@ THREE.JX.JXText.prototype.updateSubTransform = function() {
 	// 	this.boundingBox.max.set(b_x, this.height * this.scale.y - h * this.scale.y * 0.5);
 	// }
 
-	var b_x = this.width * 0.5;
+	// var b_x = this.width * 0.5;
+	// if(a >= 0) {
+	// 	this.boundingBox.min.set(-b_x, h * 0.5 - this.height);
+	// 	this.boundingBox.max.set(b_x, h * 0.5);
+	// } else {
+	// 	this.boundingBox.min.set(-b_x, -h * 0.5);
+	// 	this.boundingBox.max.set(b_x, this.height - h * 0.5);
+	// }
+
+	var b_x = this.width * 0.5, b_y = this.height * 0.5, _center = new THREE.Vector2();
+	this.boundingBox.min.set(-b_x, -b_y);
+	this.boundingBox.max.set( b_x,  b_y);
 	if(a >= 0) {
-		this.boundingBox.min.set(-b_x, h * 0.5 - this.height);
-		this.boundingBox.max.set(b_x, h * 0.5);
+		_center.set(0, (h - this.height) / 2);
 	} else {
-		this.boundingBox.min.set(-b_x, -h * 0.5);
-		this.boundingBox.max.set(b_x, this.height - h * 0.5);
+		_center.set(0, (this.height - h) / 2);
 	}
-	
 
 	var pos_x, pos_y, rot;
 	for(var i=0; i<this.content.length; i++) {
@@ -138,6 +154,10 @@ THREE.JX.JXText.prototype.updateSubTransform = function() {
 		ta = ea;
 		tl += etw + this.space;
 
+		// move position to center
+		pos_x += _center.x;
+		pos_y += _center.y;
+
 		this.subTransforms.push({
 			content: this.content[i],
 			position: {x: pos_x, y: pos_y},
@@ -146,4 +166,11 @@ THREE.JX.JXText.prototype.updateSubTransform = function() {
 	}
 
 	return this.subTransforms;
+};
+
+THREE.JX.JXText.prototype.update = function(force) {
+	if(this.needUpdate === true || force === true) {
+		this.updateSubTransform();
+		this.needUpdate = false;
+	}
 };

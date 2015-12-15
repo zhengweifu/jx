@@ -4,8 +4,11 @@ THREE.JX.JXSprite = function(image, color, strokeColor, strokeCap, strokeJoin, s
 
 	this.type = "JXSprite";
 
-	// content
+	// image
+	this.useImage = true;
 	this.image = image;
+
+	this.useColor = false;
 	this.color = color !== undefined ? color : new THREE.Color();
 
 	// stroke
@@ -20,7 +23,7 @@ THREE.JX.JXSprite = function(image, color, strokeColor, strokeCap, strokeJoin, s
 	this.shadowColor = shadowColor !== undefined ? shadowColor : new THREE.Color(0x000000);
 	this.shadowDistance = shadowDistance !== undefined ? shadowDistance : 3.0;
 	this.shadowAngle = shadowAngle !== undefined ? shadowAngle : 100;
-	this.shadowBlur = shadowBlur !== undefined ? shadowBlur : 0;
+	this.shadowBlur = shadowBlur !== undefined ? shadowBlur : 2.0;
 
 	this.width = 200;
 	this.height = 200;
@@ -39,14 +42,19 @@ THREE.JX.JXSprite.prototype.copy = function(source, recursive) {
 
 	THREE.JX.JXNode.prototype.copy.call( this, source, recursive );
 
-	this.url = source.url;
+	this.useImage = source.useImage;
+	this.image = source.image;
+
+	this.useColor = source.useColor;
 	this.color.copy(source.color);
 
+	this.useStroke = source.useStroke;
 	this.strokeColor.copy(source.strokeColor);
 	this.strokeCap = source.strokeCap;
 	this.strokeJoin = source.strokeJoin;
 	this.strokeSize = source.strokeSize;
 
+	this.useShadow = source.useShadow;
 	this.shadowColor.copy(source.shadowColor);
 	this.shadowDistance = source.shadowDistance;
 	this.shadowAngle = source.shadowAngle;
@@ -67,3 +75,10 @@ THREE.JX.JXSprite.prototype.computBoundingBox = function() {
 
 	return this.boundingBox;
 }
+
+THREE.JX.JXSprite.prototype.update = function(force) {
+	if(this.needUpdate === true || force === true) {
+		this.computBoundingBox();
+		this.needUpdate = false;
+	}
+};

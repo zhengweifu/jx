@@ -8,6 +8,7 @@
 	<script src="../src/JXText.js" ></script>
 	<script src="../src/JXSprite.js" ></script>
 	<script src="../src/JXSpriteLoader.js" ></script>
+	<script src="../src/JXTransformControls.js" ></script>
 	<script src="../src/JXCanvasRenderer.js" ></script>
 	<script src="./jquery-1.11.2.min.js"></script>
 	<script src="./jquery.arctext.js"></script>
@@ -18,10 +19,10 @@
 <canvas id="viewport" width="500" height="500"></canvas>
 <input type="text" id="changeContent" value="jia xiang mei aij">
 <input type="text" id="changeArc" value="90">
-<div class="nstSlider" data-range_min="-360" data-range_max="360" data-cur_min="0" typename="text_arc">
+<div class="nstSlider" data-range_min="-360" data-range_max="360" data-cur_min="80" typename="text_arc">
     <div class="leftGrip"></div>
 </div>
-<div class="nstSlider" data-range_min="2" data-range_max="60" data-cur_min="10" typename="text_size">
+<div class="nstSlider" data-range_min="2" data-range_max="60" data-cur_min="20" typename="text_size">
     <div class="leftGrip"></div>
 </div>
 <div class="nstSlider" data-range_min="0" data-range_max="20" data-cur_min="5"  typename="text_space">
@@ -42,7 +43,7 @@
 <script type="text/javascript">
 
 (function() {
-
+	var current_object;
 	// $("#ex_test_01").arctext({radius: 10, dir: 1, fitText: true});
 
 	var canvas = document.getElementById("viewport");
@@ -62,15 +63,17 @@
 	var text = new THREE.JX.JXText();
 	text.content = change_content.value;
 	text.color.setRGB(0.5, 0, 0.5);
-	text.size = 20;
+	text.size = 40;
+	text.useStroke = true;
 	text.strokeColor.setRGB(1, 0.5, 0);
 	text.strokeSize = 2;
+	text.useShadow = true;
 	text.shadowColor.setRGB(0.3, 0.3, 0.3);
 	text.shadowDistance = 3;
 	text.shadowBlur = 2;
-	text.arc = Math.PI / 180 * parseInt(change_arc.value);
+	// text.arc = Math.PI / 180 * parseInt(change_arc.value);
 	text.space = 5;
-	// text.position.set(40, 40, 0);
+	// text.position.set(0, 80, 0);
 	// text.scale.set(2, 2, 1);
 	// text.rotation.z = Math.PI/4;
 	// console.log(text.updateSubTransform());
@@ -84,27 +87,48 @@
 	
 	var sprite_loader = new THREE.JX.JXSpriteLoader();
 	var sprite = sprite_loader.load("sprite_test2.jpg", function(_sprite) {
-		console.log(_sprite); 
+		console.log(_sprite);
+
+		if(current_object === _sprite)  gizmo.update(current_object);
 		renderer.needUpdate = true;
 	});
+
+	// sprite.useStroke = true;
+	// sprite.useShadow = true;
 
 	// sprite.rotation.z = Math.PI/8;
 
 	// sprite.scale.set(2, 3, 1);
-
-	scene.add(sprite);
-
-	scene.add(text);
-	// scene.add(text2);
+	// 
 	
-	var current_object;
+	var sprite2 = new THREE.JX.JXSprite();
+	sprite2.useStroke = true;
+
+	var shapeGroup = new THREE.Group();
+	// shapeGroup.add(sprite);
+	shapeGroup.add(text);
+
+
+	// gizmos
+	var gizmo = new THREE.JX.JXTransformControls(canvas, renderer);
+	var gizmoGroup = new THREE.Group();
+	gizmoGroup.add(gizmo.gizmo);
+
+	scene.add(shapeGroup);
+	scene.add(gizmoGroup);
 
 	var setCurrent = function(object) {
-		if(current_object && current_object.drawHepler) current_object.drawHepler = false;
+		if(current_object == object) return;
 
 		current_object = object;
 
-		if(current_object && !current_object.drawHepler) current_object.drawHepler = true;
+		if(current_object) {
+			if(!gizmo.gizmo.visible) gizmo.gizmo.visible = true;
+			gizmo.update(current_object);
+		} else {
+			console.log("dddd");
+			if(gizmo.gizmo.visible) gizmo.gizmo.visible = false;
+		}
 
 		renderer.needUpdate = true;
 	};
@@ -158,6 +182,8 @@
 	        		current_object.scale.y = s;
 	        		break;
 	        }
+	        gizmo.update(current_object);
+
 			renderer.needUpdate = true;
 	    }
 	});
@@ -179,6 +205,7 @@
 
 		pointerOld.copy(pointer);
 
+		gizmo.update(current_object);
 		renderer.needUpdate = true;
 	};
 
@@ -190,15 +217,15 @@
 	};
 
 	canvas.addEventListener('mousedown', function(event) {
-		onMouseDown(event);
+		// onMouseDown(event);
 
 		var mp = THREE.JX.getMousePosition(event.target, event.clientX, event.clientY);
 		p.set(mp[0] * width - halfWidth, halfHeight - mp[1] * height);
  
  		var isFind = false;
-		for(var x=0; x<scene.children.length; x++) {
-			if(scene.children[x].pointInJXNode(p)) {
-				setCurrent(scene.children[x]);
+		for(var x=0; x<shapeGroup.children.length; x++) {
+			if(shapeGroup.children[x].pointInJXNode(p)) {
+				setCurrent(shapeGroup.children[x]);
 				isFind = true;
 				break;
 			}
@@ -207,8 +234,8 @@
 		if(!isFind) {
 			setCurrent();
 		} else {
-			canvas.addEventListener('mousemove', onMouseMove, false);
-			canvas.addEventListener('mouseup', onMouseUp, false);
+			// canvas.addEventListener('mousemove', onMouseMove, false);
+			// canvas.addEventListener('mouseup', onMouseUp, false);
 		}
 	}, false);
 })()

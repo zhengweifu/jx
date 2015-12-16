@@ -1,11 +1,17 @@
 THREE.JX.JXTransformControls = function(dom, renderer) {
 	this.object = undefined;
 
+	var STATE = { NONE: - 1, ROTATE: 0, ZOOMLT: 1, ZOOMRT: 2, ZOOMLB: 3, ZOOMRB: 4, PAN: 5, DELETE: 6 };
+	var state = STATE.NONE;
+
 	var translateGizmo = new THREE.JX.JXSprite();
 	translateGizmo.width = this.gizmoSize;
 	translateGizmo.height = this.gizmoSize;
 	translateGizmo.useStroke = true;
 	translateGizmo.strokeColor.setRGB(0.2, 0.8, 0.3);
+	translateGizmo.computBoundingBox();
+
+	translateGizmo.state = STATE.PAN;
 
 	var scaleGizmo = {
 		"LT" : translateGizmo.clone(), // left top
@@ -14,10 +20,16 @@ THREE.JX.JXTransformControls = function(dom, renderer) {
 		"RB" : translateGizmo.clone()	// right bottom
 	};
 
+	scaleGizmo["LT"].state = STATE.ZOOMLT;
+	scaleGizmo["RT"].state = STATE.ZOOMRT;
+	scaleGizmo["LB"].state = STATE.ZOOMLB;
+	scaleGizmo["RB"].state = STATE.ZOOMRB;
+
 	var rotationGizmo = translateGizmo.clone();
+	rotationGizmo.state = STATE.ROTATE
 
 	var deleteGizmo = translateGizmo.clone();
-	
+	deleteGizmo.state = STATE.DELETE;
 
 	this.transformGizmo = {
 		translateGizmo : translateGizmo,
@@ -27,59 +39,117 @@ THREE.JX.JXTransformControls = function(dom, renderer) {
 	};
 
 	this.gizmo = new THREE.Group();
-	this.gizmo.add(translateGizmo);
 	this.gizmo.add(scaleGizmo["LT"]);
 	this.gizmo.add(scaleGizmo["RT"]);
 	this.gizmo.add(scaleGizmo["LB"]);
 	this.gizmo.add(scaleGizmo["RB"]);
 	this.gizmo.add(rotationGizmo);
 	this.gizmo.add(deleteGizmo);
+	this.gizmo.add(translateGizmo);
+
+	this.gizmo.visible = false;// default hide
+
+	var _min_scale = 0.01;
 
 	var p = new THREE.Vector2(),
-		pointerOld = new THREE.Vector2(),
+		oldPointer = new THREE.Vector2(),
 		pointer = new THREE.Vector2(),
+		oldScale = new THREE.Vector2(),
+		oldRotation = 0.0,
+		scale = new THREE.Vector2(),
 		width = dom.clientWidth, 
 		height = dom.clientHeight, 
 		halfWidth = width/2, 
-		halfHeight = height/2;
+		halfHeight = height/2,
+		scope = this;
 
+	var getIntersect = function( mouse_point ) {
+		for(var o=0; o<scope.gizmo.children.length; o++) {
+			if(scope.gizmo.children[o].pointInJXNode(p)) {
+				return scope.gizmo.children[o];
+			}
+		}
+
+		return null;
+	};
+
+	var intersect;
 	var onMouseDown = function(event) {
-		pointerOld.set(event.clientX, event.clientY);
+		var mp = THREE.JX.getMousePosition(event.target, event.clientX, event.clientY);
+			p.set(mp[0] * width - halfWidth, halfHeight - mp[1] * height);
+
+		intersect = getIntersect(p);
+		if(intersect) state = intersect.state;
+
+		if(state != STATE.NONE) {
+			oldPointer.set(event.clientX, event.clientY);
+			oldScale.set(scope.object.scale.x, scope.object.scale.x);
+			oldRotation = scope.object.rotation.z;
+
+			// intersect.useColor = true;
+
+			dom.addEventListener("mousemove", onMouseMove, false);
+			dom.addEventListener("mouseup", onMouseUp, false);
+			dom.addEventListener("mouseout", onMouseUp, false);
+			dom.addEventListener("dblclick", onMouseUp, false);
+		}
 	};
 
 	var onMouseMove = function(event) {
 		pointer.set(event.clientX, event.clientY);
-		var moveX = pointer.x - pointerOld.x;
-		var moveY = pointer.y - pointerOld.y;
+		var moveX = pointer.x - oldPointer.x;
+		var moveY = pointer.y - oldPointer.y;
 		var _scale = 1;
-		this.object.position.x += moveX * _scale;
-		this.object.position.y -= moveY * _scale;
 
-		pointerOld.copy(pointer);
+		if(state === STATE.PAN) {
+			scope.object.position.x += moveX * _scale;
+			scope.object.position.y -= moveY * _scale;
 
-		gizmo.update(this.object);
+			oldPointer.copy(pointer);
+		} else if(state === STATE.ROTATE) {
+			console.log("v", moveX, moveY);
+			console.log("a", Math.atan2(moveY, moveX));
+
+			scope.object.rotation.z = Math.atan2(moveY, moveX) - Math.PI;
+
+			// oldPointer.copy(pointer);
+
+		} else if(state === STATE.ZOOMRT || state === STATE.ZOOMRB || state === STATE.ZOOMLT || state === STATE.ZOOMLB) {
+			if(state === STATE.ZOOMRT || state === STATE.ZOOMRB) {
+				_scale = 1 + moveX / 50;
+			} else {
+				_scale = 1 - moveX / 50;
+			}
+
+			scope.object.scale.x = oldScale.x * _scale;
+			scope.object.scale.y = oldScale.y * _scale;
+
+			if(scope.object.scale.x <= _min_scale) scope.object.scale.x = _min_scale;
+			if(scope.object.scale.y <= _min_scale) scope.object.scale.y = _min_scale;
+		} 
+
+		scope.update(scope.object);
 		renderer.needUpdate = true;
 	};
 
 	var onMouseUp = function(event) {
+		// intersect.useColor = false;
+		// renderer.needUpdate = true;
 		dom.removeEventListener( 'mousemove', onMouseMove, false );
 		dom.removeEventListener( 'mouseup', onMouseUp, false );
 		dom.removeEventListener( 'mouseout', onMouseUp, false );
 		dom.removeEventListener( 'dblclick', onMouseUp, false );
 	};
 
-	dom.addEventListener('mousedown', function(event) {
-		var mp = THREE.JX.getMousePosition(event.target, event.clientX, event.clientY);
-		p.set(mp[0] * width - halfWidth, halfHeight - mp[1] * height);
-		console.log(p);
-	}, false);
+	dom.addEventListener('mousedown', onMouseDown, false);
+
 };
 
 THREE.JX.JXTransformControls.prototype.constructor = THREE.JX.JXTransformControls;
 
 THREE.JX.JXTransformControls.prototype.spaceSize = 5;
 
-THREE.JX.JXTransformControls.prototype.gizmoSize = 10;
+THREE.JX.JXTransformControls.prototype.gizmoSize = 14;
 
 THREE.JX.JXTransformControls.prototype.update = function(object) {
 	this.object = object;
@@ -99,10 +169,10 @@ THREE.JX.JXTransformControls.prototype.update = function(object) {
 	var bbx = this.transformGizmo.translateGizmo.boundingBox;
 	// console.log(object.boundingBox);
 	// delete gizmo control
-	this.transformGizmo.deleteGizmo.position.set(bbx.min.x, (bbx.max.y + bbx.min.y) / 2, 0);
+	this.transformGizmo.deleteGizmo.position.set(bbx.min.x - this.gizmoSize, (bbx.max.y + bbx.min.y) / 2, 0);
 
 	// rotation gizmo control
-	this.transformGizmo.rotationGizmo.position.set(bbx.max.x, (bbx.max.y + bbx.min.y) / 2, 0);
+	this.transformGizmo.rotationGizmo.position.set(bbx.max.x + this.gizmoSize, (bbx.max.y + bbx.min.y) / 2, 0);
 
 	// scale gizmo control
 	this.transformGizmo.scaleGizmo["LT"].position.set(bbx.min.x, bbx.max.y, 0);

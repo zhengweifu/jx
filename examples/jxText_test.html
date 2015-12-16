@@ -105,7 +105,7 @@
 	sprite2.useStroke = true;
 
 	var shapeGroup = new THREE.Group();
-	// shapeGroup.add(sprite);
+	shapeGroup.add(sprite);
 	shapeGroup.add(text);
 
 
@@ -133,7 +133,7 @@
 		renderer.needUpdate = true;
 	};
 
-	setCurrent(text);
+	// setCurrent(text);
 
 	var render = function() {
 		scene.updateMatrixWorld();
@@ -174,13 +174,15 @@
 	        		text.space = parseInt(leftValue);
 	        		break;
 	        	case "object_rotate":
-	        		current_object.rotation.z = parseInt(leftValue) * Math.PI / 180;
+	        		if(current_object) current_object.rotation.z = parseInt(leftValue) * Math.PI / 180;
 	        		break;
 	        	case "object_scale":
-	        		var s =  parseInt(leftValue) / 100;
-	        		current_object.scale.x = s;
-	        		current_object.scale.y = s;
-	        		break;
+	        		if(current_object) {
+		        		var s =  parseInt(leftValue) / 100;
+		        		current_object.scale.x = s;
+		        		current_object.scale.y = s;
+		        		break;
+	        		};
 	        }
 	        gizmo.update(current_object);
 
@@ -188,56 +190,41 @@
 	    }
 	});
 
+	
+
+	var onDownPosition = new THREE.Vector2();
+	var onUpPosition = new THREE.Vector2();
+	
 	var p = new THREE.Vector2();
-
-	var pointerOld = new THREE.Vector2(), pointer = new THREE.Vector2();
-	var onMouseDown = function(event) {
-		pointerOld.set(event.clientX, event.clientY);
-	};
-
-	var onMouseMove = function(event) {
-		pointer.set(event.clientX, event.clientY);
-		var moveX = pointer.x - pointerOld.x;
-		var moveY = pointer.y - pointerOld.y;
-		var _scale = 1;
-		current_object.position.x += moveX * _scale;
-		current_object.position.y -= moveY * _scale;
-
-		pointerOld.copy(pointer);
-
-		gizmo.update(current_object);
-		renderer.needUpdate = true;
-	};
-
-	var onMouseUp = function(event) {
-		canvas.removeEventListener( 'mousemove', onMouseMove, false );
-		canvas.removeEventListener( 'mouseup', onMouseUp, false );
-		canvas.removeEventListener( 'mouseout', onMouseUp, false );
-		canvas.removeEventListener( 'dblclick', onMouseUp, false );
-	};
-
-	canvas.addEventListener('mousedown', function(event) {
-		// onMouseDown(event);
-
-		var mp = THREE.JX.getMousePosition(event.target, event.clientX, event.clientY);
-		p.set(mp[0] * width - halfWidth, halfHeight - mp[1] * height);
- 
- 		var isFind = false;
-		for(var x=0; x<shapeGroup.children.length; x++) {
-			if(shapeGroup.children[x].pointInJXNode(p)) {
-				setCurrent(shapeGroup.children[x]);
-				isFind = true;
-				break;
+	var getIntersect = function( mouse_point, objects ) {
+		p.set(mouse_point.x * width - halfWidth, halfHeight - mouse_point.y * height);
+		for(var x=0; x<objects.length; x++) {
+			if(objects[x].pointInJXNode(p)) {
+				return objects[x];
 			}
 		}
 
-		if(!isFind) {
-			setCurrent();
-		} else {
-			// canvas.addEventListener('mousemove', onMouseMove, false);
-			// canvas.addEventListener('mouseup', onMouseUp, false);
+		return undefined;
+	};
+
+	var onMouseDown = function(event) {
+
+		onDownPosition.fromArray(THREE.JX.getMousePosition(event.target, event.clientX, event.clientY));
+
+		canvas.addEventListener('mouseup', onMouseUp, false);
+	};
+
+	var onMouseUp = function(event) {
+		onUpPosition.fromArray(THREE.JX.getMousePosition(event.target, event.clientX, event.clientY));
+
+		if ( onDownPosition.distanceTo( onUpPosition ) == 0 ) {
+			setCurrent(getIntersect(onUpPosition, shapeGroup.children));
 		}
-	}, false);
+
+		canvas.removeEventListener( 'mouseup', onMouseUp, false );
+	};
+
+	canvas.addEventListener('mousedown', onMouseDown, false);
 })()
 
 </script>

@@ -8,7 +8,7 @@ THREE.JX.JXTransformControls = function(dom, renderer) {
 	translateGizmo.width = this.gizmoSize;
 	translateGizmo.height = this.gizmoSize;
 	translateGizmo.useStroke = true;
-	translateGizmo.strokeColor.setRGB(0.2, 0.8, 0.3);
+	translateGizmo.strokeColor.fromArray(this.defaultColor);
 	translateGizmo.computBoundingBox();
 
 	translateGizmo.state = STATE.PAN;
@@ -63,9 +63,9 @@ THREE.JX.JXTransformControls = function(dom, renderer) {
 		halfHeight = height/2,
 		scope = this;
 
-	var getIntersect = function( mouse_point ) {
+	var getIntersect = function( point ) {
 		for(var o=0; o<scope.gizmo.children.length; o++) {
-			if(scope.gizmo.children[o].pointInJXNode(p)) {
+			if(scope.gizmo.children[o].pointInJXNode(point)) {
 				return scope.gizmo.children[o];
 			}
 		}
@@ -73,48 +73,63 @@ THREE.JX.JXTransformControls = function(dom, renderer) {
 		return null;
 	};
 
+
 	var intersect;
 	var onMouseDown = function(event) {
-		var mp = THREE.JX.getMousePosition(event.target, event.clientX, event.clientY);
-			p.set(mp[0] * width - halfWidth, halfHeight - mp[1] * height);
+		
+		if(!scope.gizmo.visible || !scope.object) return;
 
+		p.fromArray(THREE.JX.getDeckardCoordinate(event.target, event.clientX, event.clientY));
 		intersect = getIntersect(p);
+		
 		if(intersect) state = intersect.state;
-
+		else state = STATE.NONE;
+		
 		if(state != STATE.NONE) {
+			
+			// oldPointer.fromArray(THREE.JX.getMousePosition(event.target, event.clientX, event.clientY));
 			oldPointer.set(event.clientX, event.clientY);
 			oldScale.set(scope.object.scale.x, scope.object.scale.x);
 			oldRotation = scope.object.rotation.z;
 
-			// intersect.useColor = true;
+			intersect.strokeColor.fromArray(scope.activeColor);
 
-			dom.addEventListener("mousemove", onMouseMove, false);
+			renderer.needUpdate = true;
+			if(state != STATE.DELETE) {
+				dom.addEventListener("mousemove", onMouseMove, false);
+				dom.addEventListener("mouseout", onMouseUp, false);
+				dom.addEventListener("dblclick", onMouseUp, false);
+			}
 			dom.addEventListener("mouseup", onMouseUp, false);
-			dom.addEventListener("mouseout", onMouseUp, false);
-			dom.addEventListener("dblclick", onMouseUp, false);
 		}
 	};
 
 	var onMouseMove = function(event) {
+		// pointer.fromArray(THREE.JX.getMousePosition(event.target, event.clientX, event.clientY));
 		pointer.set(event.clientX, event.clientY);
+
 		var moveX = pointer.x - oldPointer.x;
+
 		var moveY = pointer.y - oldPointer.y;
+		
 		var _scale = 1;
 
 		if(state === STATE.PAN) {
+
 			scope.object.position.x += moveX * _scale;
+
 			scope.object.position.y -= moveY * _scale;
 
 			oldPointer.copy(pointer);
+
 		} else if(state === STATE.ROTATE) {
-			console.log("v", moveX, moveY);
-			console.log("a", Math.atan2(moveY, moveX));
 
-			scope.object.rotation.z = Math.atan2(moveY, moveX) - Math.PI;
+			pointer.fromArray(THREE.JX.getDeckardCoordinate(event.target, event.clientX, event.clientY));
 
-			// oldPointer.copy(pointer);
+			scope.object.rotation.z = Math.atan2(pointer.y - scope.object.position.y, pointer.x - scope.object.position.x);
 
 		} else if(state === STATE.ZOOMRT || state === STATE.ZOOMRB || state === STATE.ZOOMLT || state === STATE.ZOOMLB) {
+
 			if(state === STATE.ZOOMRT || state === STATE.ZOOMRB) {
 				_scale = 1 + moveX / 50;
 			} else {
@@ -133,8 +148,13 @@ THREE.JX.JXTransformControls = function(dom, renderer) {
 	};
 
 	var onMouseUp = function(event) {
-		// intersect.useColor = false;
-		// renderer.needUpdate = true;
+		if(state === STATE.DELETE) {
+			scope.object.parent.remove(scope.object);
+
+		}
+
+		intersect.strokeColor.fromArray(scope.defaultColor);
+		renderer.needUpdate = true;
 		dom.removeEventListener( 'mousemove', onMouseMove, false );
 		dom.removeEventListener( 'mouseup', onMouseUp, false );
 		dom.removeEventListener( 'mouseout', onMouseUp, false );
@@ -150,6 +170,9 @@ THREE.JX.JXTransformControls.prototype.constructor = THREE.JX.JXTransformControl
 THREE.JX.JXTransformControls.prototype.spaceSize = 5;
 
 THREE.JX.JXTransformControls.prototype.gizmoSize = 14;
+
+THREE.JX.JXTransformControls.prototype.defaultColor = [0.2, 0.8, 0.3];
+THREE.JX.JXTransformControls.prototype.activeColor = [1.0, 0.734, 0.0];
 
 THREE.JX.JXTransformControls.prototype.update = function(object) {
 	this.object = object;
@@ -167,7 +190,7 @@ THREE.JX.JXTransformControls.prototype.update = function(object) {
 	this.transformGizmo.translateGizmo.update(true);
 
 	var bbx = this.transformGizmo.translateGizmo.boundingBox;
-	// console.log(object.boundingBox);
+
 	// delete gizmo control
 	this.transformGizmo.deleteGizmo.position.set(bbx.min.x - this.gizmoSize, (bbx.max.y + bbx.min.y) / 2, 0);
 

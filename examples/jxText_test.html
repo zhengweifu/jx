@@ -9,6 +9,7 @@
 	<script src="../src/JXSprite.js" ></script>
 	<script src="../src/JXSpriteLoader.js" ></script>
 	<script src="../src/JXTransformControls.js" ></script>
+	<script src="../src/JXShirtViewport2D.js" ></script>
 	<script src="../src/JXCanvasRenderer.js" ></script>
 	<script src="./jquery-1.11.2.min.js"></script>
 	<script src="./jquery.arctext.js"></script>
@@ -43,7 +44,7 @@
 <script type="text/javascript">
 
 (function() {
-	var current_object;
+	
 	// $("#ex_test_01").arctext({radius: 10, dir: 1, fitText: true});
 
 	var canvas = document.getElementById("viewport");
@@ -54,11 +55,6 @@
 
 	var width = canvas.clientWidth, height = canvas.clientHeight, halfWidth = width/2, halfHeight = height/2;
 
-	var scene = new THREE.Scene();
-
-	var camera = new THREE.OrthographicCamera(-width/2, width/2, -height/2, height/2, 0.1, 1000);
-
-	var renderer = new THREE.JX.JXCanvasRenderer({canvas: canvas, alpha: true});
 
 	var text = new THREE.JX.JXText();
 	text.content = change_content.value;
@@ -87,10 +83,7 @@
 	
 	var sprite_loader = new THREE.JX.JXSpriteLoader();
 	var sprite = sprite_loader.load("sprite_test2.jpg", function(_sprite) {
-		console.log(_sprite);
-
-		if(current_object === _sprite)  gizmo.update(current_object);
-		renderer.needUpdate = true;
+		viewport2d.update();
 	});
 
 	// sprite.useStroke = true;
@@ -104,58 +97,18 @@
 	var sprite2 = new THREE.JX.JXSprite();
 	sprite2.useStroke = true;
 
-	var shapeGroup = new THREE.Group();
-	shapeGroup.add(sprite);
-	shapeGroup.add(text);
 
+	var viewport2d = new Viewport2D(canvas, [text, sprite]);
 
-	// gizmos
-	var gizmo = new THREE.JX.JXTransformControls(canvas, renderer);
-	var gizmoGroup = new THREE.Group();
-	gizmoGroup.add(gizmo.gizmo);
-
-	scene.add(shapeGroup);
-	scene.add(gizmoGroup);
-
-	var setCurrent = function(object) {
-		if(current_object == object) return;
-
-		current_object = object;
-
-		if(current_object) {
-			if(!gizmo.gizmo.visible) gizmo.gizmo.visible = true;
-			gizmo.update(current_object);
-		} else {
-			console.log("dddd");
-			if(gizmo.gizmo.visible) gizmo.gizmo.visible = false;
-		}
-
-		renderer.needUpdate = true;
-	};
-
-	// setCurrent(text);
-
-	var render = function() {
-		scene.updateMatrixWorld();
-
-		renderer.render(scene, camera);
-	};
-
-	var renderLoop = function() {
-		requestAnimationFrame(renderLoop);
-		render();
-	};
-
-	renderLoop();
 
 	change_arc.onchange = function(event) {
 		text.arc = Math.PI/180 * parseInt(event.target.value);
-		renderer.needUpdate = true;
+		viewport2d.update();
 	};
 
 	change_content.onchange = function(event) {
 		text.content = event.target.value;
-		renderer.needUpdate = true;
+		viewport2d.update();
 	};
 
 	$('.nstSlider').nstSlider({
@@ -174,59 +127,21 @@
 	        		text.space = parseInt(leftValue);
 	        		break;
 	        	case "object_rotate":
-	        		if(current_object) current_object.rotation.z = parseInt(leftValue) * Math.PI / 180;
+	        		if(viewport2d.current_object) viewport2d.current_object.rotation.z = parseInt(leftValue) * Math.PI / 180;
 	        		break;
 	        	case "object_scale":
-	        		if(current_object) {
+	        		if(viewport2d.current_object) {
 		        		var s =  parseInt(leftValue) / 100;
-		        		current_object.scale.x = s;
-		        		current_object.scale.y = s;
+		        		viewport2d.current_object.scale.x = s;
+		        		viewport2d.current_object.scale.y = s;
 		        		break;
 	        		};
 	        }
-	        gizmo.update(current_object);
 
-			renderer.needUpdate = true;
+	        viewport2d.update();
 	    }
 	});
-
-	
-
-	var onDownPosition = new THREE.Vector2();
-	var onUpPosition = new THREE.Vector2();
-	
-	var p = new THREE.Vector2();
-	var getIntersect = function( mouse_point, objects ) {
-		p.set(mouse_point.x * width - halfWidth, halfHeight - mouse_point.y * height);
-		for(var x=0; x<objects.length; x++) {
-			if(objects[x].pointInJXNode(p)) {
-				return objects[x];
-			}
-		}
-
-		return undefined;
-	};
-
-	var onMouseDown = function(event) {
-
-		onDownPosition.fromArray(THREE.JX.getMousePosition(event.target, event.clientX, event.clientY));
-
-		canvas.addEventListener('mouseup', onMouseUp, false);
-	};
-
-	var onMouseUp = function(event) {
-		onUpPosition.fromArray(THREE.JX.getMousePosition(event.target, event.clientX, event.clientY));
-
-		if ( onDownPosition.distanceTo( onUpPosition ) == 0 ) {
-			setCurrent(getIntersect(onUpPosition, shapeGroup.children));
-		}
-
-		canvas.removeEventListener( 'mouseup', onMouseUp, false );
-	};
-
-	canvas.addEventListener('mousedown', onMouseDown, false);
-})()
-
+})();
 </script>
 
 </body>

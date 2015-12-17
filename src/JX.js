@@ -94,7 +94,13 @@ THREE.JX.vector2ApplyMatrix4 = function(v2, m4) {
 	return v2;
 };
 
-THREE.JX.getMousePosition = function(dom, x, y) {
+THREE.JX.getMousePosition = function(dom, x, y) { // x = event.clientX, y = event.clientY, 转element坐标
 	var rect = dom.getBoundingClientRect();
-	return [ ( x - rect.left ) / rect.width, ( y - rect.top ) / rect.height ];
+	// return [ ( x - rect.left ) / rect.width, ( y - rect.top ) / rect.height ];
+	return [ x - rect.left, y - rect.top ];
 };
+
+THREE.JX.getDeckardCoordinate = function(dom, x, y) { // x = event.clientX, y = event.clientY, 转迪卡坐标
+	var rect = dom.getBoundingClientRect();
+	return [ x - rect.left - rect.width * 0.5, rect.height * 0.5 - y + rect.top ];
+} 

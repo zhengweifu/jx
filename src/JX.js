@@ -103,4 +103,37 @@ THREE.JX.getMousePosition = function(dom, x, y) { // x = event.clientX, y = even
 THREE.JX.getDeckardCoordinate = function(dom, x, y) { // x = event.clientX, y = event.clientY, 转迪卡坐标
 	var rect = dom.getBoundingClientRect();
 	return [ x - rect.left - rect.width * 0.5, rect.height * 0.5 - y + rect.top ];
-} 
+}
+
+// swap array elements
+THREE.JX.swapArrayElements = function(arr, index1, index2) {
+	arr[index1] = arr.splice(index2, 1, arr[index1])[0];
+	return arr;
+}
+
+// get element indexOf array 
+THREE.JX.elementIndexOfArray = function(arr, element) {
+	for(var i=0, l=arr.length; i<l; i++) {
+		if(arr[i] === element) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+// element move up
+THREE.JX.moveUpArrayElement = function(arr, element) {
+	var index = THREE.JX.elementIndexOfArray(arr, element)
+	if(index > 0) {
+		THREE.JX.swapArrayElements(arr, index-1, index);
+	}
+}
+
+// element move down
+THREE.JX.moveDownArrayElement = function(arr, element) {
+	var index = THREE.JX.elementIndexOfArray(arr, element)
+	if(index > -1 && index < arr.length) {
+		THREE.JX.swapArrayElements(arr, index, index+1);
+	}
+}

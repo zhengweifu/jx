@@ -131,7 +131,6 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 
     // render JXText
     var renderText = function(text) {
-
         text.update();
 
         _context.font= text.size + "pt " + text.font;
@@ -162,13 +161,6 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
             _context.restore();
             self.init();
         }
-
-
-        // if(text.drawHepler) {
-        //     setTransform(text, false);
-        //     disableShadow();
-        //     renderHepler(text);
-        // }
     };
 
     var renderSprite = function(sprite) {
@@ -222,13 +214,48 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
             _context.strokeRect(0, 0, sprite.width, sprite.height);
             disableShadow();
         }
-        
-        // if(sprite.drawHepler) {
-        //     setTransform(sprite, false);
-        //     renderHepler(sprite);
+    };
 
-        //     disableShadow();
-        // }
+    var toCanvasCoord = function(v2) {
+        var result = {x: 0, y: 0};
+        result.x = v2.x + _canvasWidthHalf;
+        result.y = v2.y + _canvasHeightHalf;
+
+        return result;
+    };
+
+    var renderMask = function(mask) {
+        var l=mask.vertices.length;
+
+        if(l < 3) return;
+
+
+        setTransform(mask, true);
+
+        _context.beginPath();
+
+        var s_p = mask.vertices[0], c_p;
+
+        _context.moveTo(s_p.x, s_p.y);
+
+        for(var i=1; i<l; i++) {
+            c_p = mask.vertices[i];
+
+            _context.lineTo(c_p.x, c_p.y);
+        }
+
+        _context.lineTo(s_p.x, s_p.y);
+
+        if(mask.useStroke) {
+            setStroke(mask);
+            _context.stroke();
+        }
+
+        _context.globalCompositeOperation="destination-in";
+
+        _context.fill();
+
+        _context.globalCompositeOperation="source-over";
     };
 
     // render object recursive
@@ -238,6 +265,8 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
                 renderText(object);
             } else if(object instanceof THREE.JX.JXSprite) {
                 renderSprite(object);
+            } else if(object instanceof THREE.JX.JXPolygonMask) {
+                renderMask(object);
             }
 
             for(var i=0; i<object.children.length; i++) {

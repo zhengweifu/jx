@@ -1,5 +1,7 @@
-THREE.JX.JXTransformControls = function(dom, renderer) {
+THREE.JX.JXTransformControls = function(dom, renderer, mask) {
 	this.object = undefined;
+
+	this.mask = mask;
 
 	var STATE = { NONE: - 1, ROTATE: 0, ZOOMLT: 1, ZOOMRT: 2, ZOOMLB: 3, ZOOMRB: 4, PAN: 5, DELETE: 6 };
 	var state = STATE.NONE;
@@ -86,6 +88,8 @@ THREE.JX.JXTransformControls = function(dom, renderer) {
 		else state = STATE.NONE;
 		
 		if(state != STATE.NONE) {
+
+			if(scope.mask && scope.mask.useStroke !== undefined) scope.mask.useStroke = true; // show mask strole
 			
 			// oldPointer.fromArray(THREE.JX.getMousePosition(event.target, event.clientX, event.clientY));
 			oldPointer.set(event.clientX, event.clientY);
@@ -152,6 +156,8 @@ THREE.JX.JXTransformControls = function(dom, renderer) {
 			scope.object.parent.remove(scope.object);
 
 		}
+
+		if(scope.mask && scope.mask.useStroke !== undefined) scope.mask.useStroke = false;
 
 		intersect.strokeColor.fromArray(scope.defaultColor);
 		renderer.needUpdate = true;

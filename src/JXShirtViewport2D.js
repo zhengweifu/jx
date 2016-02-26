@@ -1,4 +1,4 @@
-var Viewport2D = function(inCanvas, objects) {
+var Viewport2D = function(inCanvas, objects, mask) {
 	var canvas = inCanvas;
 
 	var width = canvas.clientWidth, height = canvas.clientHeight, halfWidth = width/2, halfHeight = height/2;
@@ -18,11 +18,14 @@ var Viewport2D = function(inCanvas, objects) {
 	for(i=0; i<objects.length; i++) shapeGroup.add(objects[i]);
 	
 	// gizmos
-	var gizmo = new THREE.JX.JXTransformControls(canvas, renderer);
+	var gizmo = new THREE.JX.JXTransformControls(canvas, renderer, mask);
 	var gizmoGroup = new THREE.Group();
 	gizmoGroup.add(gizmo.gizmo);
 
 	scene.add(shapeGroup);
+
+	scene.add(mask);
+
 	scene.add(gizmoGroup);
 
 	this.setCurrent = function(object) {
@@ -62,7 +65,7 @@ var Viewport2D = function(inCanvas, objects) {
 	var onDownPosition = new THREE.Vector2();
 	var onUpPosition = new THREE.Vector2();
 	var getIntersect = function( point, objects ) {
-		for(var i=0; i<objects.length; i++) {
+		for(var i=objects.length-1; i>=0; i--) {
 			if(objects[i].pointInJXNode(point)) {
 				// console.log(objects[i]);
 				return objects[i];

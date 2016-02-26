@@ -7,6 +7,7 @@
 	<script src="../src/JXNode.js" ></script>
 	<script src="../src/JXText.js" ></script>
 	<script src="../src/JXSprite.js" ></script>
+	<script src="../src/JXPolygonMask.js" ></script>
 	<script src="../src/JXSpriteLoader.js" ></script>
 	<script src="../src/JXTransformControls.js" ></script>
 	<script src="../src/JXShirtViewport2D.js" ></script>
@@ -17,7 +18,8 @@
 </head>
 <body>
 
-<canvas id="viewport" width="500" height="500"></canvas>
+<canvas id="viewport" width="870" height="960" style="background: url('./t-shirt_2_wht.jpg')"></canvas>
+
 <input type="text" id="changeContent" value="jia xiang mei aij">
 <input type="text" id="changeArc" value="90">
 <div class="nstSlider" data-range_min="-360" data-range_max="360" data-cur_min="80" typename="text_arc">
@@ -97,8 +99,17 @@
 	var sprite2 = new THREE.JX.JXSprite();
 	sprite2.useStroke = true;
 
+	var maskHalfWith = 150, maskHalfHeight = 200;
+	var mask = new THREE.JX.JXPolygonMask([
+		new THREE.Vector2(-maskHalfWith, maskHalfHeight), 
+		new THREE.Vector2(maskHalfWith, maskHalfHeight), 
+		new THREE.Vector2(maskHalfWith, -maskHalfHeight), 
+		new THREE.Vector2(-maskHalfWith, -maskHalfHeight)
+	]);
 
-	var viewport2d = new Viewport2D(canvas, [text, sprite]);
+	mask.strokeColor.setRGB(0.2, 0.3, 0.9);
+
+	var viewport2d = new Viewport2D(canvas, [text, sprite], mask);
 
 
 	change_arc.onchange = function(event) {

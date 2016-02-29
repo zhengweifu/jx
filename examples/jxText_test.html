@@ -109,7 +109,9 @@
 
 	mask.strokeColor.setRGB(0.2, 0.3, 0.9);
 
-	var viewport2d = new Viewport2D(canvas, [text, sprite], mask);
+	var shapeGroup = new THREE.Group();
+	shapeGroup.add(text, sprite)
+	var viewport2d = new Viewport2D(canvas, shapeGroup, mask);
 
 
 	change_arc.onchange = function(event) {

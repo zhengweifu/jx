@@ -280,14 +280,14 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
         if(this.needUpdate) {
             this.clear();
             _context.save();
-            // create grid
-            _context.beginPath();
-            setStrokeStyle("#669911");
-            _context.moveTo(0, _canvasHeightHalf);
-            _context.lineTo(_canvasWidth, _canvasHeightHalf);
-            _context.moveTo(_canvasWidthHalf, 0);
-            _context.lineTo(_canvasWidthHalf, _canvasHeight);
-            _context.stroke();
+            // // create grid
+            // _context.beginPath();
+            // setStrokeStyle("#669911");
+            // _context.moveTo(0, _canvasHeightHalf);
+            // _context.lineTo(_canvasWidth, _canvasHeightHalf);
+            // _context.moveTo(_canvasWidthHalf, 0);
+            // _context.lineTo(_canvasWidthHalf, _canvasHeight);
+            // _context.stroke();
             renderObject(scene);
 
             _context.restore();

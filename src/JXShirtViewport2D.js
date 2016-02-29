@@ -1,4 +1,4 @@
-var Viewport2D = function(inCanvas, objects, mask) {
+var Viewport2D = function(inCanvas, shapeGroup, mask) {
 	var canvas = inCanvas;
 
 	var width = canvas.clientWidth, height = canvas.clientHeight, halfWidth = width/2, halfHeight = height/2;
@@ -9,13 +9,13 @@ var Viewport2D = function(inCanvas, objects, mask) {
 
 	var renderer = new THREE.JX.JXCanvasRenderer({canvas: canvas, alpha: true});
 
-	var shapeGroup = new THREE.Group();
+	// var shapeGroup = new THREE.Group();
 
 	this.current_object = undefined;
 
 	var i, scope = this;
 
-	for(i=0; i<objects.length; i++) shapeGroup.add(objects[i]);
+	// for(i=0; i<objects.length; i++) shapeGroup.add(objects[i]);
 	
 	// gizmos
 	var gizmo = new THREE.JX.JXTransformControls(canvas, renderer, mask);

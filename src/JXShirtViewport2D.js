@@ -11,6 +11,10 @@ var Viewport2D = function(inCanvas, shapeGroup, mask) {
 
 	// var shapeGroup = new THREE.Group();
 
+
+	this.onIntersect = undefined;
+	this.onNotIntersect = undefined;
+
 	this.current_object = undefined;
 
 	var i, scope = this;
@@ -35,11 +39,21 @@ var Viewport2D = function(inCanvas, shapeGroup, mask) {
 
 		if(this.current_object) {
 			if(!gizmo.gizmo.visible) gizmo.gizmo.visible = true;
+
+			if(scope.onIntersect) scope.onIntersect(scope.current_object);
+
 		} else {
 			if(gizmo.gizmo.visible) gizmo.gizmo.visible = false;
+
+			if(scope.onNotIntersect) scope.onNotIntersect();
+
 		}
 
 		this.update();
+	};
+
+	this.getGizmo = function() {
+		return gizmo;
 	};
 
 	this.update = function() {

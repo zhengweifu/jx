@@ -175,7 +175,7 @@ THREE.JX.JXTransformControls.prototype.constructor = THREE.JX.JXTransformControl
 
 THREE.JX.JXTransformControls.prototype.spaceSize = 5;
 
-THREE.JX.JXTransformControls.prototype.gizmoSize = 14;
+THREE.JX.JXTransformControls.prototype.gizmoSize = 10;
 
 THREE.JX.JXTransformControls.prototype.defaultColor = [0.2, 0.8, 0.3];
 THREE.JX.JXTransformControls.prototype.activeColor = [1.0, 0.734, 0.0];

@@ -3,6 +3,8 @@ THREE.JX.JXTransformControls = function(dom, renderer, mask) {
 
 	this.mask = mask;
 
+	this.onTransfrom = undefined;
+
 	var STATE = { NONE: - 1, ROTATE: 0, ZOOMLT: 1, ZOOMRT: 2, ZOOMLB: 3, ZOOMRB: 4, PAN: 5, DELETE: 6 };
 	var state = STATE.NONE;
 
@@ -145,7 +147,9 @@ THREE.JX.JXTransformControls = function(dom, renderer, mask) {
 
 			if(scope.object.scale.x <= _min_scale) scope.object.scale.x = _min_scale;
 			if(scope.object.scale.y <= _min_scale) scope.object.scale.y = _min_scale;
-		} 
+		}
+
+		if(scope.onTransfrom) scope.onTransfrom(scope.object);
 
 		scope.update(scope.object);
 		renderer.needUpdate = true;

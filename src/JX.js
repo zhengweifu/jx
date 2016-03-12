@@ -120,20 +120,20 @@ THREE.JX.elementIndexOfArray = function(arr, element) {
 	}
 
 	return -1;
-}
+};
 
 // element move up
 THREE.JX.moveUpArrayElement = function(arr, element) {
-	var index = THREE.JX.elementIndexOfArray(arr, element)
+	var index = THREE.JX.elementIndexOfArray(arr, element);
 	if(index > 0) {
 		THREE.JX.swapArrayElements(arr, index-1, index);
 	}
-}
+};
 
 // element move down
 THREE.JX.moveDownArrayElement = function(arr, element) {
-	var index = THREE.JX.elementIndexOfArray(arr, element)
-	if(index > -1 && index < arr.length) {
+	var index = THREE.JX.elementIndexOfArray(arr, element);
+	if(index > -1 && index < arr.length - 1) {
 		THREE.JX.swapArrayElements(arr, index, index+1);
 	}
-}
+};

@@ -1,8 +1,11 @@
-<html>
+<!DOCTYPE HTML>
+<html lang="en">
 <head>
+	<meta charset="utf-8">
 	<title>JX Text Test</title>
 	<link rel="stylesheet" href="./jquery.nstSlider.min.css">
 	<script src="../build/three.js" ></script>
+	<script src="../src/alloyimage.js" ></script>
 	<script src="../src/JX.js" ></script>
 	<script src="../src/JXNode.js" ></script>
 	<script src="../src/JXText.js" ></script>
@@ -10,6 +13,9 @@
 	<script src="../src/JXPolygonMask.js" ></script>
 	<script src="../src/JXSpriteLoader.js" ></script>
 	<script src="../src/JXTransformControls.js" ></script>
+	<!--<script src="../src/JXFilterMath.js" ></script>
+	<script src="../src/JXFilter.js" ></script>
+	<script src="../src/JXFilterEasy.js" ></script>-->
 	<script src="../src/JXShirtViewport2D.js" ></script>
 	<script src="../src/JXCanvasRenderer.js" ></script>
 	<script src="./jquery-1.11.2.min.js"></script>
@@ -18,7 +24,7 @@
 </head>
 <body>
 
-<canvas id="viewport" width="870" height="960" style="background: url('./t-shirt_2_wht.jpg')"></canvas>
+<canvas id="viewport" width="870" height="960" style="background: url('./t-shirt_2_wht.jpg_')"></canvas>
 
 <input type="text" id="changeContent" value="jia xiang mei aij">
 <input type="text" id="changeArc" value="90">
@@ -85,8 +91,13 @@
 	
 	var sprite_loader = new THREE.JX.JXSpriteLoader();
 	var sprite = sprite_loader.load("sprite_test2.jpg", function(_sprite) {
+		// _sprite.imageData = AlloyImage(_sprite.image).ps("美肤").imgData
 		viewport2d.update();
 	});
+
+	// sprite.ps = "复古";
+
+	sprite.filters.push({name: "马赛克", args: 30});
 
 	// sprite.useStroke = true;
 	// sprite.useShadow = true;
@@ -99,7 +110,7 @@
 	var sprite2 = new THREE.JX.JXSprite();
 	sprite2.useStroke = true;
 
-	var maskHalfWith = 150, maskHalfHeight = 200;
+	var maskHalfWith = 1500, maskHalfHeight = 2000;
 	var mask = new THREE.JX.JXPolygonMask([
 		new THREE.Vector2(-maskHalfWith, maskHalfHeight), 
 		new THREE.Vector2(maskHalfWith, maskHalfHeight), 
@@ -110,7 +121,7 @@
 	mask.strokeColor.setRGB(0.2, 0.3, 0.9);
 
 	var shapeGroup = new THREE.Group();
-	shapeGroup.add(text, sprite)
+	shapeGroup.add(sprite);
 	var viewport2d = new Viewport2D(canvas, shapeGroup, mask);
 
 

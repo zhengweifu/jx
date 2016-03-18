@@ -165,25 +165,30 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 
     var renderSprite = function(sprite) {
         sprite.update();
+        sprite.updateFilter();
 
         setTransform(sprite, true);
         _context.translate(-sprite.width/2, -sprite.height/2);
 
         if(sprite.useShadow) renderShadow(sprite);
 
-        if(sprite.useImage && sprite.image) {
+        // 图片抗锯齿处理
+        var imageAntialias = function(isImage) {
+            isImage = !! isImage;
             var sprite_width = sprite.width * sprite.scale.x;
             if(sprite.image.width > sprite_width) {
-                // 图片抗锯齿处理
                 var oc = document.createElement('canvas'),
                     octx = oc.getContext('2d');
                 var steps = Math.ceil(Math.log(sprite.image.width / sprite_width ) / Math.log(2));
 
-                oc.width = sprite.image.width * 0.5;
-                oc.height =  sprite.image.height * 0.5;
-
-                octx.drawImage(sprite.image, 0, 0, oc.width , oc.height);
-
+                oc.width = sprite.image.width;
+                oc.height =  sprite.image.height;
+                if(isImage) {
+                    octx.drawImage(sprite.image, 0, 0, oc.width , oc.height);
+                } else {
+                    octx.putImageData(sprite.imageData, 0, 0);
+                }
+                
                 var _pow, _w, _h, d_w = oc.width, d_h = oc.height;
                 for(var s=1; s<steps; s++) {
                     _pow = Math.pow(2, s);
@@ -193,10 +198,22 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
                     d_w = _w;
                     d_h = _h;
                 }
-
                 _context.drawImage(oc, 0, 0, d_w, d_h, 0, 0, sprite.width, sprite.height);
             } else {
-                _context.drawImage(sprite.image, 0, 0, sprite.width, sprite.height);
+                if(isImage) {
+                    _context.drawImage(sprite.image, 0, 0, sprite.width, sprite.height);
+                } else {
+                    _context.putImageData(sprite.imageData, 0, 0);
+                }
+            }
+        };
+
+        if(sprite.useImage) {
+            
+            if(sprite.imageData) {
+                imageAntialias(false);
+            } else if (sprite.image) {
+                imageAntialias(true);
             }
 
             disableShadow();

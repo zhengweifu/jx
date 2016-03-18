@@ -1,0 +1,1 @@
+THREE.JX.JXAlteration = {};

@@ -18,9 +18,9 @@ THREE.JX.JXSpriteLoader.prototype = {
 
 			sprite.height *= (image.height / image.width);
 
-			sprite.update(true);
-
 			sprite.image = image;
+			
+			sprite.update(true);
 
 			sprite.needsUpdate = true;
 

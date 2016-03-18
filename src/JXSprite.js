@@ -25,8 +25,15 @@ THREE.JX.JXSprite = function(image, color, strokeColor, strokeCap, strokeJoin, s
 	this.shadowAngle = shadowAngle !== undefined ? shadowAngle : 100;
 	this.shadowBlur = shadowBlur !== undefined ? shadowBlur : 2.0;
 
+	this.imageData = undefined;
+
+	this.filters = [];
+	this.ps = undefined;
+
 	this.width = 200;
 	this.height = 200;
+
+	this.needUpdateFilter = true;
 };
 
 THREE.JX.JXSprite.prototype = Object.create(THREE.JX.JXNode.prototype);
@@ -74,11 +81,42 @@ THREE.JX.JXSprite.prototype.computBoundingBox = function() {
 	this.boundingBox.max.set(half_w, half_h);
 
 	return this.boundingBox;
-}
+};
 
 THREE.JX.JXSprite.prototype.update = function(force) {
 	if(this.needUpdate === true || force === true) {
 		this.computBoundingBox();
 		this.needUpdate = false;
+	}
+};
+
+THREE.JX.JXSprite.prototype.updateFilter = function(force) {
+	if(this.needUpdateFilter === true || force === true) {
+		
+		if(this.image) {
+
+			var _alloyImage = AlloyImage(this.image);
+
+			var l = this.filters.length;
+
+			if(this.ps) {
+
+				this.imageData = _alloyImage.ps(this.ps).imgData;
+
+			} else if (l > 0) {
+				for(var i=0; i<l; i++) {
+					_alloyImage.act(this.filters[i]["name"]);
+				}
+
+				_alloyImage.complileLayers();
+				
+				this.imageData = _alloyImage.tempPsLib.imgData;
+
+			} else {
+				return;
+			}
+
+			this.needUpdateFilter = false;
+		}
 	}
 };

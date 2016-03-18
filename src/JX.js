@@ -2,7 +2,6 @@ THREE.JX = {
 	version : "1.0.0"
 };
 
-
 /**
  * [getTextSize description]
  * @param  {[type]} text    [description]

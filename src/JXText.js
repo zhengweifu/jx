@@ -174,3 +174,34 @@ THREE.JX.JXText.prototype.update = function(force) {
 		this.needUpdate = false;
 	}
 };
+
+THREE.JX.JXText.prototype.toJson = function() {
+	return {
+		type: this.type,
+
+		// content
+		content: this.content,
+		useColor: this.useColor,
+		color: this.color.getHex(),
+		size: this.size,
+		space: this.space,
+		font: this.font,
+
+		// stroke
+		useStroke: this.useStroke,
+		strokeColor: this.strokeColor.getHex(),
+		strokeCap: this.strokeCap,
+		strokeJoin: this.strokeJoin,
+		strokeSize: this.strokeSize,
+
+		// shadow
+		useShadow: this.useShadow,
+		shadowColor: this.shadowColor.getHex(),
+		shadowDistance: this.shadowDistance,
+		shadowAngle: this.shadowAngle,
+		shadowBlur: this.shadowBlur,
+
+		// arc
+		arc: this.arc
+	};
+};

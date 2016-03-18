@@ -97,7 +97,8 @@
 
 	// sprite.ps = "复古";
 
-	sprite.filters.push({name: "马赛克", args: 30});
+	sprite.filters.push({name: "setHSI", args: [10, 5, 10, true]});
+	sprite.filters.push({name: "toReverse"});
 
 	// sprite.useStroke = true;
 	// sprite.useShadow = true;

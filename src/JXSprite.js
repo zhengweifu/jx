@@ -97,15 +97,37 @@ THREE.JX.JXSprite.prototype.updateFilter = function(force) {
 
 			var _alloyImage = AlloyImage(this.image);
 
-			var l = this.filters.length;
+			var l = this.filters.length, i, j;
 
 			if(this.ps) {
 
 				this.imageData = _alloyImage.ps(this.ps).imgData;
 
 			} else if (l > 0) {
-				for(var i=0; i<l; i++) {
-					_alloyImage.act(this.filters[i]["name"]);
+				for(i=0; i<l; i++) {
+					if(this.filters[i]["args"] !== undefined) {
+						if(this.filters[i]["args"] instanceof Array) {
+							var _method_string = '_alloyImage.act("' + this.filters[i]["name"] + '"';
+							for(j=0; j<this.filters[i]["args"].length; j++) {
+								if(this.filters[i]["args"][j] instanceof String) {
+									_method_string += ', "'  + this.filters[i]["args"][j] + '"';
+								} else {
+									_method_string += ", " + this.filters[i]["args"][j].toString();
+								}
+							}
+							_method_string += ')';
+							console.log(_method_string);
+							try {
+								eval(_method_string);
+							} catch(e) {
+								console.log(e.message);
+							}
+						} else {
+							_alloyImage.act(this.filters[i]["name"], this.filters[i]["args"]);
+						}
+					} else {
+						_alloyImage.act(this.filters[i]["name"]);
+					}
 				}
 
 				_alloyImage.complileLayers();
@@ -119,4 +141,37 @@ THREE.JX.JXSprite.prototype.updateFilter = function(force) {
 			this.needUpdateFilter = false;
 		}
 	}
+};
+
+THREE.JX.JXSprite.prototype.toJson = function() {
+	return {
+		type: this.type,
+
+		// image
+		useImage: this.useImage,
+		// this.image
+
+		useColor: this.useColor,
+		color: this.color.getHex(),
+
+		// stroke
+		useStroke: this.useStroke,
+		strokeColor: this.strokeColor.getHex(),
+		strokeCap: this.strokeCap,
+		strokeJoin: this.strokeJoin,
+		strokeSize: this.strokeSize,
+
+		// shadow
+		useShadow: this.useShadow,
+		shadowColor: this.shadowColor.getHex(),
+		shadowDistance: this.shadowDistance,
+		shadowAngle: this.shadowAngle,
+		shadowBlur: this.shadowBlur,
+
+		filters: this.filters,
+		ps: this.ps,
+
+		width: this.width,
+		height: this.height
+	};
 };

@@ -42,6 +42,27 @@ THREE.JX.JXTransformControls = function(dom, renderer, mask) {
 		deleteGizmo : deleteGizmo
 	};
 
+	this.rd_s = this.gizmoSize * 1.43,
+
+	deleteGizmo.width  = rotationGizmo.width = this.rd_s;
+	deleteGizmo.height = rotationGizmo.height = this.rd_s;
+
+	deleteGizmo.image = new Image();
+	deleteGizmo.image.onload = function() {
+		deleteGizmo.useStroke = false;
+		deleteGizmo.useImage = true;
+		deleteGizmo.update(true);
+	};
+	deleteGizmo.image.src = 'data:image/png;base64,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';
+
+	rotationGizmo.image = new Image();
+	rotationGizmo.image.onload = function() {
+		rotationGizmo.useStroke = false;
+		rotationGizmo.useImage = true;
+		rotationGizmo.update(true);
+	};
+	rotationGizmo.image.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAFWElEQVRYR81YYWhWVRh+nrLWSJlbFk6KKbkfJdS+CMLQtlkERdGiEApDrf6GG/Uzm6t+VioE/SlUkgQpWiQFkW1DSazgm8Hoh5KOQkfYnGgsJXrjuZyznXt3vu/e79uozp+x797znue+7/M+7/seYh7LzJYBWA/gHvc3tHYGwAkAR0j+UO8xrHWjmS0CsBnAFgDrCu4fF1AA+0h+XXBP8lpNAM3sBQAvA7hDm6eu/o3hc9MYnbyCkYk/U+euXLwId7c0oKv1BnS0NITPDgHoI3mqCNBCAM3sVgDvAXhMRgVq36lL2HvyUpEzILCb25egd81SLL3+Gu2ZBrCd5Nt5BnIBOnAHAayVx/qOny8MLHu4wO28bxm2tC/xjw6QfLYayKoAHbivFFKFsfuLs0lY57t62m7EnvW3eG9WBVkRoJktBiBwaxXSJw9PRMHJKzqwc3ljEkq/hiemcWLyKgbH/4h+j3g59OgKD/Jdki/FXqwG8CMAz1TynMD0l1rCcEWBnLn8FwbKk1FaCGS5R/RO1tMkP8kaiQI0s6cAfKxwlgZ/gQ4JlzgkLgWEPwxgEMDP7r1rnS5u8FJU6UN71zQltgAcI3l/UYDSrHVKiF1jF+eAE3/cOgDgtWqS4aRJ8pQkmXgssOGSF50UvUlye/hsjgedwffltVUHpa+zS1z79MHl/ocXSX5QJGFCmYp5squ1EUOPrIh6MQbwc+nd1iO/pXijcJ7e2ObD+koRDcuCN7Nv5Unpp+xX8GKKiymAroydB9DUvP90KmsVVqdfh0g+XsRzEYCrAfwIoFHRCbkdcDGV0VmA3QC+kax0f3k2Zf/CplXee+1Fy1TsI8zsQwCbsl4MMnqUZMnvzQLsA/COEkMJ4lfAvaMk1b3UvcxMXjwZ47g9f3til+QMrizAAWXljvIkBsoXZkD0l5qxo9Si/18n2V83OrfRzKZiNAqyuURyNAEbHmZm0rInVDXCChDwbyvJvQsAcBhAp2gkOvmlTFZGA9hAcigGUK3UW5KCqSuzNbfjpoYF4Z8HYmb1AZQBLwURL+V2HkU9a2bqttuymZzrweALOwA0Bwcqs2ZJWRRJ5D2fJKoqkrIUxVySALiOZFJfc/vBWrE4AJ2uFmseSVUbM3sDwKtZmVHzoUIAYJzkSn/uggJ0h4vHCdPdmimJroX7Tv1lNkFUBFyN30/yuQUFGDYEMizvjExM+wM1KGnAEr+TFi5WCAL+pWr8vDxoZg8B2OZnFWV/3/HfE+kIGoARkl0+tLEWLgwvgNWef3Vz0M3DO1WyZCQ2q4QAAWi6SgaurMbqN3VIqlYAUuGtC6DzhPq7VhlQ1dk9dnHOOBAAlBI36iMELhRm7Q/K6DkAd5GcrbG1ZHGWZ6o0qtfZbtuTOwCYcFLvZgcuhbbcc1vVFi6Xg2Z2LwDV3yREIc+qSZC6Ew3t+pDYR6i/1NDkOumKRSBv7BS47yvxrFaN9O8L1J4HbvbgjgF4mOTlmL08gIksqP3SZLYQM7EaU02DbuASuI0kf630sdXGTpW6SYHaNTaVar/q8ZySYdudTb5bkYlCtb2QB2VNPBLRKw3iWdDykBJFA73ABUP9T+5eZs4MXHOInfpLjJUkyVWbZEJinB0ds8bDLHbPjrrZeXcoxHnRyM1ib8DMVGOlf8nVWyXpiMjMCABNgXVdYhYG6LypyxdVEAFNxFfJkx3u9W621OV5quYkqWbQtVQCmmij+Kk5N6wS/ynAIOy6w+kN+SmgAvy/ABgAVRMqsAk/FXK1W+6a5DOSPf9qiGOHuWZU18RJhxOsuq5J/P6akqSIF1ztDlv+3Hvoanb/AeRqxkckDkYGAAAAAElFTkSuQmCC';
+
 	this.gizmo = new THREE.Group();
 	this.gizmo.add(scaleGizmo["LT"]);
 	this.gizmo.add(scaleGizmo["RT"]);
@@ -179,7 +200,7 @@ THREE.JX.JXTransformControls.prototype.constructor = THREE.JX.JXTransformControl
 
 THREE.JX.JXTransformControls.prototype.spaceSize = 5;
 
-THREE.JX.JXTransformControls.prototype.gizmoSize = 10;
+THREE.JX.JXTransformControls.prototype.gizmoSize = 14;
 
 THREE.JX.JXTransformControls.prototype.defaultColor = [0.2, 0.8, 0.3];
 THREE.JX.JXTransformControls.prototype.activeColor = [1.0, 0.734, 0.0];
@@ -202,10 +223,10 @@ THREE.JX.JXTransformControls.prototype.update = function(object) {
 	var bbx = this.transformGizmo.translateGizmo.boundingBox;
 
 	// delete gizmo control
-	this.transformGizmo.deleteGizmo.position.set(bbx.min.x - this.gizmoSize, (bbx.max.y + bbx.min.y) / 2, 0);
+	this.transformGizmo.deleteGizmo.position.set(bbx.min.x - this.rd_s, (bbx.max.y + bbx.min.y) / 2, 0);
 
 	// rotation gizmo control
-	this.transformGizmo.rotationGizmo.position.set(bbx.max.x + this.gizmoSize, (bbx.max.y + bbx.min.y) / 2, 0);
+	this.transformGizmo.rotationGizmo.position.set(bbx.max.x + this.rd_s, (bbx.max.y + bbx.min.y) / 2, 0);
 
 	// scale gizmo control
 	this.transformGizmo.scaleGizmo["LT"].position.set(bbx.min.x, bbx.max.y, 0);

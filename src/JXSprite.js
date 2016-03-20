@@ -149,7 +149,7 @@ THREE.JX.JXSprite.prototype.toJson = function() {
 
 		// image
 		useImage: this.useImage,
-		// this.image
+		// url: this.image.src,
 
 		useColor: this.useColor,
 		color: this.color.getHex(),

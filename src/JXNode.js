@@ -9,6 +9,8 @@ THREE.JX.JXNode = function() {
 
 	this.height = 0;
 
+	this.group = undefined;
+
 	this.drawHepler = false;
 
 	this.gizmoHepler = undefined;
@@ -45,6 +47,8 @@ THREE.JX.JXNode.prototype.pointInJXNode = function(point) {
 	 * +           +
 	 * p4 + + + + p3
 	 */
+
+	this.update();
 
 	var bbx = this.boundingBox;
 	var p1 = new THREE.Vector2(bbx.min.x, bbx.max.y),

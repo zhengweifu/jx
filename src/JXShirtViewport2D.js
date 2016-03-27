@@ -32,6 +32,8 @@ var Viewport2D = function(inCanvas, shapeGroup, mask) {
 
 	scene.add(gizmoGroup);
 
+	this.selectPrecision = 0.001;
+
 	this.setCurrent = function(object) {
 		if(this.current_object == object) return;
 
@@ -101,7 +103,7 @@ var Viewport2D = function(inCanvas, shapeGroup, mask) {
 		// onUpPosition.fromArray(THREE.JX.getMousePosition(event.target, event.clientX, event.clientY));
 		onUpPosition.set(event.clientX, event.clientY);
 
-		if ( onDownPosition.distanceTo( onUpPosition ) == 0 ) {
+		if ( onDownPosition.distanceTo( onUpPosition ) <= width * scope.selectPrecision ) {
 			onUpPosition.fromArray(THREE.JX.getDeckardCoordinate(event.target, event.clientX, event.clientY));
 			scope.setCurrent(getIntersect(onUpPosition, shapeGroup.children));
 		}

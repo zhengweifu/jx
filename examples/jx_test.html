@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>JX Test</title>
+</head>
+<body>
+	<canvas id="m-test-viewport" width="800" height="800"></canvas>
+</body>
+<script type="text/javascript">
+(function() {
+	var mCanvas = document.getElementById("m-test-viewport");
+	var mConext = mCanvas.getContext("2d");
+
+	mConext.beginPath();
+	mConext.lineWidth="5";
+	mConext.strokeStyle="red"; // 红色路径
+	mConext.moveTo(10,10);
+	mConext.lineTo(110,10);
+	mConext.lineTo(110,110);
+	mConext.lineTo(10,110);
+	mConext.lineTo(10,10);
+	mConext.closePath();
+
+	mConext.moveTo(20,20);
+	mConext.lineTo(20,100);
+	mConext.lineTo(100,100);
+	mConext.lineTo(100,20);
+	mConext.lineTo(20,20);
+	mConext.closePath();
+
+	// mConext.moveTo(20,20);
+	// mConext.lineTo(100,20);
+	// mConext.lineTo(100,100);
+	// mConext.lineTo(20,100);
+	// mConext.lineTo(20,20);
+	mConext.stroke();
+	mConext.fill(); // 进行绘制
+
+	// console.log(mConext);
+})();
+</script>
+
+</html>

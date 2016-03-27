@@ -93,6 +93,31 @@ THREE.JX.vector2ApplyMatrix4 = function(v2, m4) {
 	return v2;
 };
 
+THREE.JX.box2ApplyMatrix4 = function(b2, m4) {
+	THREE.JX.vector2ApplyMatrix4(b2.min);
+	THREE.JX.vector2ApplyMatrix4(b2.max);
+	return b2;
+};
+
+THREE.JX.box2FromObjects = function(b2, objects, applyMatrix) {
+	applyMatrix = !!applyMatrix;
+	var v2Array = [], i, j, l=objects.length;
+	for(i=0; i<l; i++) {
+		objects[i].update();
+		v2Array.push(new THREE.Vector2(objects[i].boundingBox.min.x, objects[i].boundingBox.max.y));
+		v2Array.push(new THREE.Vector2(objects[i].boundingBox.min.x, objects[i].boundingBox.min.y));
+		v2Array.push(new THREE.Vector2(objects[i].boundingBox.max.x, objects[i].boundingBox.min.y));
+		v2Array.push(new THREE.Vector2(objects[i].boundingBox.max.x, objects[i].boundingBox.max.y));
+		if(applyMatrix) {
+			for(j=0; j<4; j++) {
+				THREE.JX.vector2ApplyMatrix4(v2Array[i * 4 + j], objects[i].matrix);
+			}
+		}
+	}
+
+	return b2.setFromPoints(v2Array);
+};
+
 THREE.JX.getMousePosition = function(dom, x, y) { // x = event.clientX, y = event.clientY, 转element坐标
 	var rect = dom.getBoundingClientRect();
 	// return [ ( x - rect.left ) / rect.width, ( y - rect.top ) / rect.height ];

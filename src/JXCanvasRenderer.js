@@ -275,6 +275,39 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
         _context.globalCompositeOperation="source-over";
     };
 
+    var renderPath = function(path) {
+        path.update();
+
+        setTransform(path, true);
+        // _context.translate(-sprite.width/2, -sprite.height/2);
+
+        var _path = path.path;
+        // console.log(_path);
+        // console.log(_canvasWidthHalf, _canvasHeightHalf)
+        _context.beginPath();
+        _context.lineWidth="1";
+        _context.strokeStyle="red"; // 红色路径
+        for(var i=0, l=_path.actions.length; i<l; i++) {
+            // console.log(_path.actions[i]["args"][0]);
+            switch(_path.actions[i]["action"]) {
+
+                case "moveTo":
+                    _context.moveTo(_path.actions[i]["args"][0], -_path.actions[i]["args"][1]);
+                    break;
+                case "lineTo":
+                    _context.lineTo(_path.actions[i]["args"][0], -_path.actions[i]["args"][1]);
+                    break;
+            }
+        }
+
+        // _context.moveTo(path.boundingBox.min.x, path.boundingBox.max.y);
+        // _context.lineTo(path.boundingBox.min.x, path.boundingBox.min.y);
+        // _context.lineTo(path.boundingBox.max.x, path.boundingBox.min.y);
+        // _context.lineTo(path.boundingBox.max.x, path.boundingBox.max.y);
+        _context.stroke();
+        // console.log(path.path);
+    };
+
     // render object recursive
     var renderObject = function(object) {
         if(object.visible) {
@@ -282,6 +315,8 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
                 renderText(object);
             } else if(object instanceof THREE.JX.JXSprite) {
                 renderSprite(object);
+            } else if(object instanceof THREE.JX.JXPath) {
+                renderPath(object);
             } else if(object instanceof THREE.JX.JXPolygonMask) {
                 renderMask(object);
             }
@@ -298,13 +333,13 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
             this.clear();
             _context.save();
             // // create grid
-            // _context.beginPath();
-            // setStrokeStyle("#669911");
-            // _context.moveTo(0, _canvasHeightHalf);
-            // _context.lineTo(_canvasWidth, _canvasHeightHalf);
-            // _context.moveTo(_canvasWidthHalf, 0);
-            // _context.lineTo(_canvasWidthHalf, _canvasHeight);
-            // _context.stroke();
+            _context.beginPath();
+            setStrokeStyle("#669911");
+            _context.moveTo(0, _canvasHeightHalf);
+            _context.lineTo(_canvasWidth, _canvasHeightHalf);
+            _context.moveTo(_canvasWidthHalf, 0);
+            _context.lineTo(_canvasWidthHalf, _canvasHeight);
+            _context.stroke();
             renderObject(scene);
 
             _context.restore();

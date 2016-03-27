@@ -8,6 +8,8 @@
 	<script src="../src/alloyimage.js" ></script>
 	<script src="../src/JX.js" ></script>
 	<script src="../src/JXNode.js" ></script>
+	<script src="../src/JXGroup.js" ></script>
+	<script src="../src/JXPath.js" ></script>
 	<script src="../src/JXText.js" ></script>
 	<script src="../src/JXSprite.js" ></script>
 	<script src="../src/JXPolygonMask.js" ></script>
@@ -75,9 +77,9 @@
 	text.shadowColor.setRGB(0.3, 0.3, 0.3);
 	text.shadowDistance = 3;
 	text.shadowBlur = 2;
-	// text.arc = Math.PI / 180 * parseInt(change_arc.value);
+	text.arc = Math.PI / 180 * parseInt(change_arc.value);
 	text.space = 5;
-	// text.position.set(0, 80, 0);
+	text.position.set(0, 80, 0);
 	// text.scale.set(2, 2, 1);
 	// text.rotation.z = Math.PI/4;
 	// console.log(text.updateSubTransform());
@@ -121,8 +123,31 @@
 
 	mask.strokeColor.setRGB(0.2, 0.3, 0.9);
 
+	var jxGroup = new THREE.JX.JXGroup();
+	jxGroup.add(text, sprite);
+
+	var jxPath1 = new THREE.JX.JXPath();
+	jxPath1.fromSVGPath("M144.9,382.6L142.2,384.7L141.9,386.2L142.4,387.2L161.3,397.8L173.4,405.4L188.1,414L205,424L217.2,426.4L242.2,429.2L259.5,310L175.7,298.1L172.6,314.5L171,314.5L169.3,317.2L166.8,317L165.5,314.3L162.8,314L161.9,312.8L161,312.8L160,313.4L158.1,314.4L158,321.4L157.8,323.1L157.2,335.7L155.7,337.9L155.1,341.2L157.9,346.1L159.1,351.9L159.9,352.9L161,353.5L160.8,355.8L159.2,357.2L155.8,358.9L153.9,360.8L152.4,364.5L151.8,369.4L149,372.1L146.9,372.8L147,373.7L146.6,375.4L147,376.2L150.7,376.7L150.1,379.5L148.6,381.7L144.9,382.6z");
+	
+	var jxPath2 = new THREE.JX.JXPath();
+	jxPath2.path.moveTo(10, 10);
+
+	jxPath2.path.lineTo(10, 100);
+
+	jxPath2.path.lineTo(100, 100);
+
+	jxPath2.path.lineTo(100, 10);
+
+	jxPath2.path.lineTo(10, 10);
+	jxPath2.path.lineTo(-10, -10);
+
+	var jxPathGroup = new THREE.JX.JXGroup();
+	jxPathGroup.add(jxPath1, jxPath2);
+
+
 	var shapeGroup = new THREE.Group();
-	shapeGroup.add(sprite);
+	shapeGroup.add(jxGroup);
+	shapeGroup.add(jxPathGroup);
 	var viewport2d = new Viewport2D(canvas, shapeGroup, mask);
 
 

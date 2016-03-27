@@ -214,7 +214,9 @@ THREE.JX.JXTransformControls.prototype.update = function(object) {
 
 	// translate gizmo control
 	var _w = (object.boundingBox.max.x - object.boundingBox.min.x),
-		_h = (object.boundingBox.max.y - object.boundingBox.min.y);
+		_h = (object.boundingBox.max.y - object.boundingBox.min.y),
+		_cx = (object.boundingBox.max.x + object.boundingBox.min.x) / 2,
+		_cy = (object.boundingBox.max.y + object.boundingBox.min.y) / 2;
 	this.transformGizmo.translateGizmo.width = _w * object.scale.x + this.spaceSize * 2;
 	this.transformGizmo.translateGizmo.height = _h * object.scale.y + this.spaceSize * 2;
 
@@ -236,6 +238,8 @@ THREE.JX.JXTransformControls.prototype.update = function(object) {
 
 	// this.gizmo tanslate and rotation
 	this.gizmo.position.copy(object.position);
+	this.gizmo.position.x += _cx;
+	this.gizmo.position.y += _cy;
 	this.gizmo.rotation.copy(object.rotation);
 
 }

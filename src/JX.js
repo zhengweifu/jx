@@ -104,6 +104,7 @@ THREE.JX.box2FromObjects = function(b2, objects, applyMatrix) {
 	var v2Array = [], i, j, l=objects.length;
 	for(i=0; i<l; i++) {
 		objects[i].update();
+		objects[i].updateMatrixWorld();
 		v2Array.push(new THREE.Vector2(objects[i].boundingBox.min.x, objects[i].boundingBox.max.y));
 		v2Array.push(new THREE.Vector2(objects[i].boundingBox.min.x, objects[i].boundingBox.min.y));
 		v2Array.push(new THREE.Vector2(objects[i].boundingBox.max.x, objects[i].boundingBox.min.y));
@@ -161,3 +162,147 @@ THREE.JX.moveDownArrayElement = function(arr, element) {
 		THREE.JX.swapArrayElements(arr, index, index+1);
 	}
 };
+
+THREE.JX.getPositionFromAngleAndScale = function(a, x, y, s) {
+    a = -a || 0;
+    x = x || 0;
+    y = y || 0;
+    s = s || 1;
+
+    var result = {x: 0, y: 0}, ma;
+
+    if(a == 0 && s == 1) return result;
+    else if(a == 0 && s != 1) {
+       result.x = x * -(s - 1);
+       result.y = y * -(s - 1);
+       return result;
+    }
+
+    if(x == 0 && y == 0) {
+        return result;
+    } else if(x == 0 && y != 0) {
+        ma = 0;
+    } else if(x == 0 && y != 0) {
+        ma = Math.PI / 2;
+    } else {
+        ma = Math.atan(x / y);
+    }
+
+    var _a = Math.PI / 2 - a / 2 - ma,
+    l = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)),
+    _l = Math.sin(a / 2) * l * 2;
+
+    var t_x = _l * Math.sin(_a),
+        t_y = _l * Math.cos(_a);
+
+    var __a = Math.PI / 2 - a - ma,
+        l_x = t_x / Math.cos(__a),
+        y_x = t_x * Math.tan(__a);
+         
+    result.x = -(l_x + (s - 1) * l) * t_x / l_x,
+    result.y = t_y - (y_x * (s - 1) * l / l_x);
+
+    return result;
+};
+
+THREE.JX.getMatrix4FromRotationAxis = function(radian, pivot_start, pivot_end, m4) {
+    m4 = (m4 === undefined) ? new THREE.Matrix4() : m4;
+
+    var c = Math.cos(radian);
+    var s = Math.sin(radian);
+
+    var p = new THREE.Vector3();
+    p.subVectors(pivot_end, pivot_start).normalize();
+
+    var u = p.x, v = p.y, w = p.z;
+
+    var x =  pivot_start.x, y = pivot_start.y, z = pivot_start.z;
+
+    var uu = u * u,
+        uv = u * v, 
+        uw = u * w,
+        vv = v * v, 
+        vw = v * w, 
+        ww = w * w,
+
+        xu = x * u,
+        xv = x * v,
+        xw = x * w,
+        yu = y * u,
+        yv = y * v,
+        yw = y * w,
+        zu = z * u,
+        zv = z * v,
+        zw = z * w;
+
+    var m11 = uu +(vv + ww) * c,
+        m12 = uv * (1 - c) - w * s,
+        m13 = uw * (1 - c) + v * s,
+        m14 = (x * (vv + ww) - u * (yv + zw)) * (1 - c) + (yw - zv) * s,
+
+        m21 = uv * (1 - c) + w * s,
+        m22 = vv + (uu + ww) * c,
+        m23 = vw * (1 - c) - u * s,
+        m24 = (y * (uu + ww) - v * (xu + zw)) * (1 - c) + (zu - xw) * s,
+
+        m31 = uw * (1 - c) - v * s,
+        m32 = vw * (1 - c) + u * s,
+        m33 = ww + (uu + vv) * c,
+        m34 = (z * (uu + vv) - w * (xu + yv)) * (1 - c) + (xv - yu) * s;
+
+    m4.set(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, 0, 0, 0, 1);
+
+    return m4;
+};
+
+THREE.JX.getMatrix4FromScaleAxis = function(v, vector, m4) { // vector is normalize
+	m4 = (m4 === undefined) ? new THREE.Matrix4() : m4;
+
+	// m4.set(
+	// 	1 + (v - 1) * vector.x * vector.x,  (v - 1) * vector.x * vector.y,       (v - 1) * vector.x * vector.z,      0,
+	// 	(v - 1) * vector.x * vector.y,      1 + (v - 1) * vector.y * vector.y,   (v - 1) * vector.y * vector.z,      0,
+	// 	(v - 1) * vector.x * vector.z,      (v - 1) * vector.y * vector.z,       1 + (v - 1) * vector.z * vector.z,  0,
+	// 	0,                        0,                         0,                        1
+	// );
+	// 
+
+	m4.set(
+		1 + (v - 1) * vector.x * vector.x,  (v - 1) * vector.x * vector.y,      (v - 1) * vector.x * vector.z,      0,
+		(v - 1) * vector.x * vector.y,      1 + (v - 1) * vector.y * vector.y,  (v - 1) * vector.y * vector.z,      0,
+		(v - 1) * vector.x * vector.z,      (v - 1) * vector.y * vector.z,      1 + (v - 1) * vector.z * vector.z,  0,
+		0,                        0,                        0,                        1
+	);
+
+	return m4;
+};
+
+THREE.JX.setObjectScale = function(object, pivot_start, pivot_end, s) {
+	var vector = new THREE.Vector3();
+    vector.subVectors(pivot_end, pivot_start).normalize();
+
+    object.updateMatrix();
+
+    var _matrix = object.matrix;
+    var _m4 = new THREE.Matrix4();
+
+    _m4.makeTranslation(-pivot_start.x, -pivot_start.y, -pivot_start.z);
+	// _matrix.multiply(_m4);
+	object.applyMatrix(_m4);
+
+	// _matrix.multiply(THREE.JX.getMatrix4FromScaleAxis(s, vector));
+	object.applyMatrix(THREE.JX.getMatrix4FromScaleAxis(s, vector));
+
+    _m4.makeTranslation(pivot_start.x, pivot_start.y, pivot_start.z);
+    // _matrix.multiply(_m4);
+    object.applyMatrix(_m4);
+
+    // _matrix.decompose(object.position, object.rotation, object.scale);
+};
+
+// 判断类型
+THREE.JX.is = function (obj, type) { 
+	return (type === "Null" && obj === null) || 
+	(type === "Undefined" && obj === void 0 ) || 
+	(type === "Number" && isFinite(obj)) || 
+	Object.prototype.toString.call(obj).slice(8,-1) === type; 
+}

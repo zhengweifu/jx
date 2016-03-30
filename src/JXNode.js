@@ -48,7 +48,7 @@ THREE.JX.JXNode.prototype.pointInJXNode = function(point) {
 	 * p4 + + + + p3
 	 */
 
-	this.update();
+	this.update(true);
 
 	var bbx = this.boundingBox;
 	var p1 = new THREE.Vector2(bbx.min.x, bbx.max.y),

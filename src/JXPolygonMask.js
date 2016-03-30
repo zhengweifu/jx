@@ -12,6 +12,8 @@ THREE.JX.JXPolygonMask = function(vertices, strokeColor, strokeCap, strokeJoin, 
 	this.strokeSize = strokeSize !== undefined ? strokeSize : 1;
 
 	this.vertices = vertices;
+
+	this.needUpdate = true;
 };
 
 

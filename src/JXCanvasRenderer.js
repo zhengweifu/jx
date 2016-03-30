@@ -131,7 +131,7 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
 
     // render JXText
     var renderText = function(text) {
-        text.update();
+        // text.update();
 
         _context.font= text.size + "pt " + text.font;
 
@@ -164,7 +164,7 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
     };
 
     var renderSprite = function(sprite) {
-        sprite.update();
+        // sprite.update();
         sprite.updateFilter();
 
         setTransform(sprite, true);
@@ -276,41 +276,54 @@ THREE.JX.JXCanvasRenderer = function(parameters) {
     };
 
     var renderPath = function(path) {
-        path.update();
+        // path.update();
 
         setTransform(path, true);
-        // _context.translate(-sprite.width/2, -sprite.height/2);
 
-        var _path = path.path;
-        // console.log(_path);
-        // console.log(_canvasWidthHalf, _canvasHeightHalf)
-        _context.beginPath();
-        _context.lineWidth="1";
-        _context.strokeStyle="red"; // 红色路径
-        for(var i=0, l=_path.actions.length; i<l; i++) {
-            // console.log(_path.actions[i]["args"][0]);
-            switch(_path.actions[i]["action"]) {
+        var _path = path.path, i, l = _path.actions.length;
 
-                case "moveTo":
-                    _context.moveTo(_path.actions[i]["args"][0], -_path.actions[i]["args"][1]);
-                    break;
-                case "lineTo":
-                    _context.lineTo(_path.actions[i]["args"][0], -_path.actions[i]["args"][1]);
-                    break;
+        if(l > 0) {
+            _context.beginPath();
+
+            for(i=0; i<l; i++) {
+                // console.log(_path.actions[i]["action"]);
+                switch(_path.actions[i]["action"]) {
+                    case "moveTo":
+                        _context.moveTo(_path.actions[i]["args"][0], -_path.actions[i]["args"][1]);
+                        break;
+                    case "lineTo":
+                        _context.lineTo(_path.actions[i]["args"][0], -_path.actions[i]["args"][1]);
+                        break;
+                    case "bezierCurveTo":
+                        _context.bezierCurveTo(_path.actions[i]["args"][0], -_path.actions[i]["args"][1],
+                            _path.actions[i]["args"][2], -_path.actions[i]["args"][3],
+                            _path.actions[i]["args"][4], -_path.actions[i]["args"][5]);
+                        break;
+                }
+            }
+
+            if(path.useColor) {
+                setFillStyle(path.color.getStyle());
+                _context.fill();
+
+                disableShadow();
+            }
+
+            if(path.useStroke) {
+                setStroke(path);
+                _context.stroke();
+                disableShadow();
             }
         }
-
-        // _context.moveTo(path.boundingBox.min.x, path.boundingBox.max.y);
-        // _context.lineTo(path.boundingBox.min.x, path.boundingBox.min.y);
-        // _context.lineTo(path.boundingBox.max.x, path.boundingBox.min.y);
-        // _context.lineTo(path.boundingBox.max.x, path.boundingBox.max.y);
-        _context.stroke();
-        // console.log(path.path);
     };
 
     // render object recursive
     var renderObject = function(object) {
         if(object.visible) {
+            if(object.update) {
+                object.update(true);
+            }
+
             if(object instanceof THREE.JX.JXText) {
                 renderText(object);
             } else if(object instanceof THREE.JX.JXSprite) {

@@ -32,7 +32,7 @@ var Viewport2D = function(inCanvas, shapeGroup, mask) {
 
 	scene.add(gizmoGroup);
 
-	this.selectPrecision = 0.001;
+	this.selectPrecision = 0.01;
 
 	this.setCurrent = function(object) {
 		if(this.current_object == object) return;
@@ -66,7 +66,7 @@ var Viewport2D = function(inCanvas, shapeGroup, mask) {
 	// setCurrent(text);
 
 	var render = function() {
-		scene.updateMatrixWorld();
+		scene.updateMatrixWorld(true);
 
 		renderer.render(scene, camera);
 	};

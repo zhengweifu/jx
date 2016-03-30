@@ -4,7 +4,7 @@ THREE.JX.JXPath = function(points) {
 	this.type = "JXPath";
 
 	this.useColor = true;
-	this.color = new THREE.Color();
+	this.color = new THREE.Color(0x000000);
 
 	// stroke
 	this.useStroke = false;
@@ -32,7 +32,7 @@ THREE.JX.JXPath.prototype.constructor = THREE.JX.JXPath;
 THREE.JX.JXPath.prototype.update = function(force) {
 	if(this.needUpdate === true || !!force) {
 		this.boundingBox.setFromPoints(this.path.getPoints(10));
-		this.pointsToCenter();
+		// this.pointsToCenter();
 		this.needUpdate = false;
 	}
 };
@@ -44,7 +44,7 @@ THREE.JX.JXPath.prototype.pointsToCenter = function() {
 	if(_cx <= 0.00001 && _cy <= 0.00001) return;
 
 	var i, j, l = this.path.actions.length;
-	console.log(_cx, _cy);
+
 	for(i=0; i<l; i++) {
 		for(j=0; j<this.path.actions[i]["args"].length; j++) {
 			if(j % 2 === 0) {
@@ -62,6 +62,16 @@ THREE.JX.JXPath.prototype.pointsToCenter = function() {
 	this.boundingBox.max.y -= _cy;
 
 	this.position.set(_cx, _cy, 0);
+};
+
+THREE.JX.JXPath.prototype.filpY = function() {
+	for(var i=0; i<this.path.actions.length; i++) {
+		for(var j=0; j<this.path.actions[i]["action"].length; j++) {
+			if(j % 2 === 1) {
+				this.path.actions[i]["action"][j] *= -1;
+			} 
+		}
+	}
 };
 
 THREE.JX.JXPath.prototype.fromSVGPath = function(pathStr) {
@@ -285,6 +295,8 @@ THREE.JX.JXPath.prototype.fromSVGPath = function(pathStr) {
 		if (canRepeat && nextIsNum())
 			continue;
 		activeCmd = pathStr[idx++];
+
+		this.filpY();
 	}
 };
 

@@ -1,0 +1,18 @@
+var a = Math.PI * 50 / 180,
+x = 1, 
+y = 2,
+s_x = 3,
+s_y = 2,
+_a = Math.PI / 2 - a / 2 - Math.atan(x / y),
+l = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)),
+_l = Math.sin(a / 2) * l * 2;
+var t_x = _l * Math.sin(_a),
+	t_y = _l * Math.cos(_a);
+
+var __a = Math.PI / 2 - a - Math.atan(x / y),
+	l_x = t_x / Math.cos(__a),
+	y_x = t_x * Math.tan(__a);
+	 
+var _x = (l_x + (s_x - 1) * l) * t_x / l_x,
+	_y = t_y - (y_x * (s_x - 1) * l / l_x);
+console.log(_x, _y);

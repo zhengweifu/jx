@@ -15,6 +15,7 @@
 	<script src="../src/JXPolygonMask.js" ></script>
 	<script src="../src/JXSpriteLoader.js" ></script>
 	<script src="../src/JXTransformControls.js" ></script>
+	<script src="../src/SVGLoader.js" ></script>
 	<!--<script src="../src/JXFilterMath.js" ></script>
 	<script src="../src/JXFilter.js" ></script>
 	<script src="../src/JXFilterEasy.js" ></script>-->
@@ -23,6 +24,7 @@
 	<script src="./jquery-1.11.2.min.js"></script>
 	<script src="./jquery.arctext.js"></script>
 	<script src="./jquery.nstSlider.min.js"></script>
+	<script src="./xml2json.js"></script>
 </head>
 <body>
 
@@ -52,6 +54,12 @@
 <!-- <div>My     name is ZhengWeiFu  </div> -->
 <span id="ex_test_01">the is all my test</span>
 <script type="text/javascript">
+var m_box_01 = new THREE.JX.JXSprite();
+m_box_01.width = 20;
+m_box_01.height = 20;
+m_box_01.useStroke = true;
+
+var m_box_02 = m_box_01.clone();
 
 (function() {
 	
@@ -126,28 +134,39 @@
 	var jxGroup = new THREE.JX.JXGroup();
 	jxGroup.add(text, sprite);
 
-	var jxPath1 = new THREE.JX.JXPath();
-	jxPath1.fromSVGPath("M144.9,382.6L142.2,384.7L141.9,386.2L142.4,387.2L161.3,397.8L173.4,405.4L188.1,414L205,424L217.2,426.4L242.2,429.2L259.5,310L175.7,298.1L172.6,314.5L171,314.5L169.3,317.2L166.8,317L165.5,314.3L162.8,314L161.9,312.8L161,312.8L160,313.4L158.1,314.4L158,321.4L157.8,323.1L157.2,335.7L155.7,337.9L155.1,341.2L157.9,346.1L159.1,351.9L159.9,352.9L161,353.5L160.8,355.8L159.2,357.2L155.8,358.9L153.9,360.8L152.4,364.5L151.8,369.4L149,372.1L146.9,372.8L147,373.7L146.6,375.4L147,376.2L150.7,376.7L150.1,379.5L148.6,381.7L144.9,382.6z");
 	
-	var jxPath2 = new THREE.JX.JXPath();
-	jxPath2.path.moveTo(10, 10);
-
-	jxPath2.path.lineTo(10, 100);
-
-	jxPath2.path.lineTo(100, 100);
-
-	jxPath2.path.lineTo(100, 10);
-
-	jxPath2.path.lineTo(10, 10);
-	jxPath2.path.lineTo(-10, -10);
-
-	var jxPathGroup = new THREE.JX.JXGroup();
-	jxPathGroup.add(jxPath1, jxPath2);
-
-
 	var shapeGroup = new THREE.Group();
-	shapeGroup.add(jxGroup);
-	shapeGroup.add(jxPathGroup);
+	// shapeGroup.add(m_box_01, m_box_02);
+	// shapeGroup.add(jxGroup);
+	// 
+	var x2js = new X2JS();
+	var loader = new THREE.XHRLoader();
+	loader.load("./svg/1.svg", function(xml) {
+		var jxPathGroup = new THREE.JX.JXGroup();
+		var _paths = x2js.xml_str2json(xml).svg.path, _path;
+
+		if(!THREE.JX.is(_paths, "Array")) {
+			_paths = [_paths];
+		}
+		for(var i=0; i<_paths.length; i++) {
+			_path = new THREE.JX.JXPath();
+			_path.color.setStyle(_paths[i]._fill);
+			_path.fromSVGPath(_paths[i]._d.replace(/ /g, ""));
+			_path.update();
+			jxPathGroup.add(_path);
+		}
+		jxPathGroup.update();
+		shapeGroup.add(jxPathGroup);
+
+		var _cx = (jxPathGroup.boundingBox.min.x + jxPathGroup.boundingBox.min.x) / 2,
+			_cy = (jxPathGroup.boundingBox.min.x + jxPathGroup.boundingBox.min.y) / 2;
+
+		// jxPathGroup.applyMatrix(THREE.JX.getMatrix4FromRotationAxis(Math.PI / 4, new THREE.Vector3(_cx, _cy, 0), new THREE.Vector3(_cx, _cy, 1)));
+		// jxPathGroup.applyMatrix(THREE.JX.getMatrix4FromScaleAxis(2, new THREE.Vector3(_cx, _cy, 0), new THREE.Vector3(_cx+1, _cy, 0)));
+		// console.log(jxPathGroup)
+	});
+	
+	shapeGroup.add(sprite);
 	var viewport2d = new Viewport2D(canvas, shapeGroup, mask);
 
 

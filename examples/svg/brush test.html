@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>brush test</title>
+    <script src="/city/doge/js/jquery-1.11.2.min.js" type="text/javascript"></script>
+    <script src="/city/doge/diy/js/common/libs/jsfeat-min.js" type="text/javascript"></script>
+    <script src="/city/doge/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="/city/doge/js/fabric.js" type="text/javascript"></script>
+    <script src="/city/doge/diy/seajs-2.3.0/dist/sea.js" type="text/javascript"></script>
+    <link href="/city/doge/css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-8">
+            <canvas id="ats-viewport-2d" width="600" height="400" style="border: 1px mediumvioletred solid; width: 100% !important;"></canvas>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group" id="ats-brush-size-group">
+                <label for="ats-brush-size">笔刷大小</label>
+                <select class="form-control" id="ats-brush-size">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option value="40">40</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="ats-smooth-size">光滑处理</label>
+                <input type="text" class="form-control" value="10" id="ats-smooth-size">
+            </div>
+            <div class="form-group">
+                <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-default" id="ats-change-drawing-on">上一步</button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-default" id="ats-change-drawing-off">下一步</button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-default" id="ats-gen-model">生成模型</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-default" id="ats-draw-undo">撤销</button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-default" id="ats-draw-redo">重做</button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-default btn-block" id="ats-clear-canvas">清除画布</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="ats_viewport-group">
+                <canvas id="ats-viewport-3d" style="border: 1px mediumvioletred solid; width: 100%; height: 500px"></canvas>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label for="ats-brush-size">材质</label>
+                <select class="form-control" id="ats-material">
+                    <option value="127">18k 黄金</option>
+                    <option value="128">18k 玫瑰金</option>
+                    <option value="129">18k 白金</option>
+                    <option value="130">925 银</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    seajs.use("./ZEntry.js", function(ZEntry) {
+        var parameters = {
+            canvas_2d: document.getElementById("ats-viewport-2d"),
+            canvas_3d: document.getElementById("ats-viewport-3d")
+        };
+
+        new ZEntry(parameters);
+
+        $(".ats-canvas-container").css({
+//            margin: "auto"
+        });
+    });
+
+</script>
+</body>
+</html>
